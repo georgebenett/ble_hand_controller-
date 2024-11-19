@@ -8,12 +8,12 @@ extern "C" {
 #endif
 
 // Display resolution
-#define LCD_H_RES 240
-#define LCD_V_RES 320
+#define LCD_H_RES 320
+#define LCD_V_RES 240
 
 // Color definitions in RGB565 format
-#define COLOR_BLACK       0x0000
-#define COLOR_WHITE       0xFFFF
+#define COLOR_BLACK       0xFFFF
+#define COLOR_WHITE       0x0000
 #define COLOR_RED         0xF800
 #define COLOR_GREEN       0x07E0
 #define COLOR_BLUE        0x001F

@@ -47,24 +47,18 @@ struct gattc_profile_inst {
     esp_bd_addr_t remote_bda;
 };
 
-enum{
+enum {
     SPP_IDX_SVC,
-
     SPP_IDX_SPP_DATA_RECV_VAL,
-
     SPP_IDX_SPP_DATA_NTY_VAL,
     SPP_IDX_SPP_DATA_NTF_CFG,
-
     SPP_IDX_SPP_COMMAND_VAL,
-
     SPP_IDX_SPP_STATUS_VAL,
     SPP_IDX_SPP_STATUS_CFG,
-
 #ifdef SUPPORT_HEARTBEAT
     SPP_IDX_SPP_HEARTBEAT_VAL,
     SPP_IDX_SPP_HEARTBEAT_CFG,
 #endif
-
     SPP_IDX_NB,
 };
 
@@ -99,8 +93,8 @@ static uint16_t spp_srv_start_handle = 0;
 static uint16_t spp_srv_end_handle = 0;
 static uint16_t spp_gattc_if = 0xff;
 static char * notify_value_p = NULL;
-static int notify_value_offset = 0;
-static int notify_value_count = 0;
+static int32_t notify_value_offset = 0;
+static int32_t notify_value_count = 0;
 static uint16_t count = SPP_IDX_NB;
 static esp_gattc_db_elem_t *db = NULL;
 static esp_ble_gap_cb_param_t scan_rst;

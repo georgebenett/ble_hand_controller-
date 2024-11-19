@@ -23,16 +23,11 @@ void app_main(void)
 
     // Initialize LCD
     ESP_ERROR_CHECK(lcd_init());
-    
-    // Test LCD
-    lcd_clear(COLOR_WHITE);
-    lcd_fill_rect(10, 10, 100, 20, COLOR_RED);
-    lcd_draw_line(0, 0, LCD_H_RES-1, LCD_V_RES-1, COLOR_GREEN);
+    lcd_clear(COLOR_BLACK);
 
-    // Initialize ADC
-    ESP_ERROR_CHECK(adc_init());
     
-    // Start ADC task for periodic readings
+    // Initialize ADC and start tasks
+    ESP_ERROR_CHECK(adc_init());
     adc_start_task();
     
     // Initialize the SPP client demo
