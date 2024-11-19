@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
 #include "ble_spp_client.h"
 #include "adc.h"
+#include "lcd.h"
 
 #define TAG "MAIN"
 
@@ -17,6 +20,14 @@ void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
+
+    // Initialize LCD
+    ESP_ERROR_CHECK(lcd_init());
+    
+    // Test LCD
+    lcd_clear(COLOR_WHITE);
+    lcd_fill_rect(10, 10, 100, 20, COLOR_RED);
+    lcd_draw_line(0, 0, LCD_H_RES-1, LCD_V_RES-1, COLOR_GREEN);
 
     // Initialize ADC
     ESP_ERROR_CHECK(adc_init());

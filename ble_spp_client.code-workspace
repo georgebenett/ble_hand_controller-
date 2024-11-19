@@ -1,0 +1,12 @@
+{
+    "folders": [
+        {
+            "path": "ble_spp_client"
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "adc.h": "c"
+        }
+    }
+}
