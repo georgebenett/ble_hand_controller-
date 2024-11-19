@@ -1,5 +1,5 @@
 # Build directories
-build/
+ble_spp_client/build
 debug/
 release/
 out/
@@ -9,6 +9,8 @@ out/
 .idea/
 *.swp
 *.swo
+*.code-workspace
+ble_spp_client.code-workspace
 
 # Object files and binaries
 *.o
@@ -46,4 +48,4 @@ __pycache__/
 ehthumbs.db
 Thumbs.db
 
-ble_spp_client/build
+
