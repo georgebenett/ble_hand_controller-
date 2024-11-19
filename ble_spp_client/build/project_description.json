@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "spp_client_demo",
-    "project_version":    "6917dd5-dirty",
+    "project_version":    "049d167-dirty",
     "project_path":       "/home/george/Documents/myrepo/ble_hand_controller/ble_spp_client",
     "idf_path":           "/home/george/esp/v5.3.1/esp-idf",
     "build_dir":          "/home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/build",
