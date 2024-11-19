@@ -90,7 +90,7 @@ static esp_ble_scan_params_t ble_scan_params = {
     .scan_duplicate         = BLE_SCAN_DUPLICATE_DISABLE
 };
 
-static const char device_name[] = "ESP_SPP_SERVER";
+static const char device_name[] = "ble hand controller";
 static bool is_connect = false;
 static uint16_t spp_conn_id = 0;
 static uint16_t spp_mtu_size = 23;
@@ -245,15 +245,23 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
         esp_ble_gap_cb_param_t *scan_result = (esp_ble_gap_cb_param_t *)param;
         switch (scan_result->scan_rst.search_evt) {
         case ESP_GAP_SEARCH_INQ_RES_EVT:
-            esp_log_buffer_hex(GATTC_TAG, scan_result->scan_rst.bda, 6);
-            ESP_LOGI(GATTC_TAG, "Searched Adv Data Len %d, Scan Response Len %d", scan_result->scan_rst.adv_data_len, scan_result->scan_rst.scan_rsp_len);
             adv_name = esp_ble_resolve_adv_data(scan_result->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
-            ESP_LOGI(GATTC_TAG, "Searched Device Name Len %d", adv_name_len);
-            esp_log_buffer_char(GATTC_TAG, adv_name, adv_name_len);
-            ESP_LOGI(GATTC_TAG, " ");
+            
+            // Only print logs if the device is "ble_hand_receiver"
+            if (adv_name != NULL && strncmp((char *)adv_name, "ble_hand_receiver", adv_name_len) == 0) {
+                esp_log_buffer_hex(GATTC_TAG, scan_result->scan_rst.bda, 6);
+                ESP_LOGI(GATTC_TAG, "Searched Adv Data Len %d, Scan Response Len %d", 
+                    scan_result->scan_rst.adv_data_len, 
+                    scan_result->scan_rst.scan_rsp_len);
+                ESP_LOGI(GATTC_TAG, "Searched Device Name Len %d", adv_name_len);
+                esp_log_buffer_char(GATTC_TAG, adv_name, adv_name_len);
+                ESP_LOGI(GATTC_TAG, " ");
+            }
+
+            // Keep the original connection logic unchanged
             if (adv_name != NULL) {
-                if ( strncmp((char *)adv_name, device_name, adv_name_len) == 0) {
-                    memcpy(&(scan_rst), scan_result, sizeof(esp_ble_gap_cb_param_t));
+                if (strncmp((char *)adv_name, device_name, adv_name_len) == 0) {
+                    memcpy(&scan_rst, scan_result, sizeof(esp_ble_gap_cb_param_t));
                     esp_ble_gap_stop_scanning();
                 }
             }
@@ -603,7 +611,7 @@ static void spp_uart_init(void)
     xTaskCreate(uart_task, "uTask", 2048, (void*)UART_NUM_0, 8, NULL);
 }
 
-void app_main(void)
+void spp_client_demo_init(void)
 {
     esp_err_t ret;
 
