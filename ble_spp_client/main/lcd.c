@@ -5,6 +5,7 @@
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include <string.h>
 
 #define TAG "LCD"
 
@@ -18,8 +19,15 @@
 #define LCD_PIXEL_CLOCK_HZ (40 * 1000 * 1000) // 40MHz
 #define LCD_HOST    SPI2_HOST
 
+#define DIGIT_WIDTH  20
+#define DIGIT_HEIGHT 30
+#define LINE_THICK   3
+#define LCD_REFRESH_PERIOD_MS 20
+
 static esp_lcd_panel_io_handle_t io_handle = NULL;
 static esp_lcd_panel_handle_t panel_handle = NULL;
+static TaskHandle_t display_task_handle = NULL;
+static QueueHandle_t display_queue = NULL;
 
 esp_err_t lcd_init(void)
 {
@@ -130,4 +138,66 @@ esp_err_t lcd_draw_line(int x1, int y1, int x2, int y2, uint16_t color)
         }
     }
     return ESP_OK;
+}
+
+void lcd_draw_digit(int16_t x, int16_t y, uint8_t digit, uint16_t color) {
+    switch(digit) {
+        case 0:
+            lcd_fill_rect(x, y, DIGIT_WIDTH, LINE_THICK, color);                    // Top
+            lcd_fill_rect(x, y + DIGIT_HEIGHT - LINE_THICK, DIGIT_WIDTH, LINE_THICK, color); // Bottom
+            lcd_fill_rect(x, y, LINE_THICK, DIGIT_HEIGHT, color);                   // Left
+            lcd_fill_rect(x + DIGIT_WIDTH - LINE_THICK, y, LINE_THICK, DIGIT_HEIGHT, color); // Right
+            break;
+        case 1:
+            lcd_fill_rect(x + DIGIT_WIDTH - LINE_THICK, y, LINE_THICK, DIGIT_HEIGHT, color); // Right
+            break;
+        case 2:
+            lcd_fill_rect(x, y, DIGIT_WIDTH, LINE_THICK, color);                    // Top
+            lcd_fill_rect(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, LINE_THICK, color);   // Middle
+            lcd_fill_rect(x, y + DIGIT_HEIGHT - LINE_THICK, DIGIT_WIDTH, LINE_THICK, color); // Bottom
+            lcd_fill_rect(x + DIGIT_WIDTH - LINE_THICK, y, LINE_THICK, DIGIT_HEIGHT/2, color); // Top Right
+            lcd_fill_rect(x, y + DIGIT_HEIGHT/2, LINE_THICK, DIGIT_HEIGHT/2, color);  // Bottom Left
+            break;
+        // Add cases 3-9 here
+    }
+}
+
+void lcd_draw_number(int16_t x, int16_t y, uint32_t number, uint16_t color) {
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%lu", number);
+    
+    int16_t digit_y = y;
+    for(size_t i = 0; i < strlen(buf); i++) {
+        lcd_draw_digit(x, digit_y, buf[i] - '0', color);
+        digit_y += DIGIT_HEIGHT + 5; // 5 pixels spacing between digits, moving down instead of right
+    }
+}
+
+static void lcd_display_task(void *pvParameters) {
+    uint32_t value;
+    char buf[32];
+    
+    const int32_t center_x = LCD_H_RES/2;
+    const int32_t center_y = LCD_V_RES/2;
+    
+    while (1) {
+        if (xQueueReceive(display_queue, &value, pdMS_TO_TICKS(LCD_REFRESH_PERIOD_MS)) == pdTRUE) {
+            snprintf(buf, sizeof(buf), "%lu", value);
+            int16_t total_height = strlen(buf) * (DIGIT_HEIGHT + 5) - 5;
+            int16_t start_x = center_x - (DIGIT_WIDTH / 2);
+            int16_t start_y = center_y - (total_height / 2);
+            
+            lcd_draw_number(start_x, start_y, value, COLOR_WHITE);
+        }
+    }
+}
+
+void lcd_init_display_task(void) {
+    display_queue = adc_get_queue();
+    if (display_queue == NULL) {
+        ESP_LOGE(TAG, "Failed to get queue handle from ADC");
+        return;
+    }
+    
+    xTaskCreate(lcd_display_task, "lcd_display", 4096, NULL, 5, &display_task_handle);
 } 

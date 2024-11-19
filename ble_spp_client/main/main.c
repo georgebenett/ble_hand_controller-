@@ -21,14 +21,14 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    // Initialize LCD
-    ESP_ERROR_CHECK(lcd_init());
-    lcd_clear(COLOR_BLACK);
-
-    
     // Initialize ADC and start tasks
     ESP_ERROR_CHECK(adc_init());
     adc_start_task();
+    
+    // Initialize LCD
+    ESP_ERROR_CHECK(lcd_init());
+    lcd_clear(COLOR_BLACK);
+    lcd_init_display_task();
     
     // Initialize the SPP client demo
     spp_client_demo_init();
