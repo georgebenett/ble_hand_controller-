@@ -4,7 +4,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#include "lcd.h"
 #include <string.h>
 #include <stdint.h>
 
@@ -51,6 +50,7 @@ static void adc_task(void *pvParameters) {
         uint32_t adc_value = adc_read_value();
         xQueueSend(adc_display_queue, &adc_value, 0);
         vTaskDelay(pdMS_TO_TICKS(20));
+        
     }
 }
 
