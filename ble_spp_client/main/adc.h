@@ -6,6 +6,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#define ADC_SAMPLING_TICKS 10
+#define THROTTLE_PIN ADC_CHANNEL_2
+
 esp_err_t adc_init(void);
 int32_t adc_read_value(void);
 void adc_start_task(void);

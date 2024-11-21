@@ -30,7 +30,7 @@ esp_err_t adc_init(void)
     // Channel configuration
     config.atten = ADC_ATTEN_DB_12;
     config.bitwidth = ADC_BITWIDTH_12;
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, ADC_CHANNEL_2, &config));
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, THROTTLE_PIN, &config));
     
     return ESP_OK;
 }
@@ -38,9 +38,9 @@ esp_err_t adc_init(void)
 int32_t adc_read_value(void)
 {
     int adc_raw;
-    ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, ADC_CHANNEL_2, &adc_raw));
+    ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, THROTTLE_PIN, &adc_raw));
     
-    ESP_LOGI(TAG, "ADC Raw: %d", adc_raw);
+    //ESP_LOGI(TAG, "ADC Raw: %d", adc_raw);
     
     return adc_raw;
 }
@@ -49,7 +49,7 @@ static void adc_task(void *pvParameters) {
     while (1) {
         uint32_t adc_value = adc_read_value();
         xQueueSend(adc_display_queue, &adc_value, 0);
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(ADC_SAMPLING_TICKS));
         
     }
 }
