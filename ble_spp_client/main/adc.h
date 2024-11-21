@@ -7,7 +7,7 @@
 #include "freertos/queue.h"
 
 #define ADC_SAMPLING_TICKS 10
-#define THROTTLE_PIN ADC_CHANNEL_2
+#define THROTTLE_PIN ADC_CHANNEL_3
 
 #define ADC_INPUT_MAX_VALUE 2300
 #define ADC_INPUT_MIN_VALUE 1300
