@@ -12,6 +12,7 @@ static adc_oneshot_unit_handle_t adc1_handle;
 static adc_oneshot_unit_init_cfg_t init_config1;
 static adc_oneshot_chan_cfg_t config;
 static QueueHandle_t adc_display_queue = NULL;
+static uint32_t latest_adc_value = 0;
 
 esp_err_t adc_init(void)
 {
@@ -39,18 +40,23 @@ int32_t adc_read_value(void)
 {
     int adc_raw;
     ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, THROTTLE_PIN, &adc_raw));
+
+    // Clamp the ADC value to the valid range
+    if (adc_raw < ADC_INPUT_MIN_VALUE) adc_raw = ADC_INPUT_MIN_VALUE;
+    if (adc_raw > ADC_INPUT_MAX_VALUE) adc_raw = ADC_INPUT_MAX_VALUE;
     
-    //ESP_LOGI(TAG, "ADC Raw: %d", adc_raw);
-    
-    return adc_raw;
+    int32_t mapped = (adc_raw - ADC_INPUT_MIN_VALUE) * (ADC_OUTPUT_MAX_VALUE - ADC_OUTPUT_MIN_VALUE) /
+                     (ADC_INPUT_MAX_VALUE - ADC_INPUT_MIN_VALUE) + ADC_OUTPUT_MIN_VALUE;
+
+    return mapped;
 }
 
 static void adc_task(void *pvParameters) {
     while (1) {
         uint32_t adc_value = adc_read_value();
+        latest_adc_value = adc_value;  // Store the latest value
         xQueueSend(adc_display_queue, &adc_value, 0);
         vTaskDelay(pdMS_TO_TICKS(ADC_SAMPLING_TICKS));
-        
     }
 }
 
@@ -63,4 +69,9 @@ void adc_start_task(void) {
 QueueHandle_t adc_get_queue(void)
 {
     return adc_display_queue;
+}
+
+// Add this function to get the latest ADC value
+uint32_t adc_get_latest_value(void) {
+    return latest_adc_value;
 } 

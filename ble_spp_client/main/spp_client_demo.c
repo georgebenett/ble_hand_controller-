@@ -27,6 +27,7 @@
 #include "esp_gatt_common_api.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "adc.h"
 
 #define DEVICE_NAME                 "GS-THUMB"
 #define GATTC_TAG                   "GATTC_SPP_DEMO"
@@ -68,6 +69,7 @@ enum {
 static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 static void esp_gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
+static void adc_send_task(void *pvParameters);
 
 /* One gatt-based profile one app_id and one gattc_if, this array will store the gattc_if returned by ESP_GATTS_REG_EVT */
 static struct gattc_profile_inst gl_profile_tab[PROFILE_NUM] = {
@@ -242,12 +244,12 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
         switch (scan_result->scan_rst.search_evt) {
         case ESP_GAP_SEARCH_INQ_RES_EVT:
             adv_name = esp_ble_resolve_adv_data(scan_result->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
-            
+
             // Only print logs if the device is "ble_hand_receiver"
             if (adv_name != NULL && strncmp((char *)adv_name, "ble_hand_receiver", adv_name_len) == 0) {
                 esp_log_buffer_hex(GATTC_TAG, scan_result->scan_rst.bda, 6);
-                ESP_LOGI(GATTC_TAG, "Searched Adv Data Len %d, Scan Response Len %d", 
-                    scan_result->scan_rst.adv_data_len, 
+                ESP_LOGI(GATTC_TAG, "Searched Adv Data Len %d, Scan Response Len %d",
+                    scan_result->scan_rst.adv_data_len,
                     scan_result->scan_rst.scan_rsp_len);
                 ESP_LOGI(GATTC_TAG, "Searched Device Name Len %d", adv_name_len);
                 esp_log_buffer_char(GATTC_TAG, adv_name, adv_name_len);
@@ -643,4 +645,32 @@ void spp_client_demo_init(void)
 
     ble_client_appRegister();
     spp_uart_init();
+    xTaskCreate(adc_send_task, "adc_send_task", 2048, NULL, 5, NULL);
+}
+
+static void adc_send_task(void *pvParameters) {
+    char data_buffer[32];
+
+    while (1) {
+        if (is_connect && db != NULL &&
+            ((db+SPP_IDX_SPP_DATA_RECV_VAL)->properties &
+             (ESP_GATT_CHAR_PROP_BIT_WRITE_NR | ESP_GATT_CHAR_PROP_BIT_WRITE))) {
+
+            uint32_t adc_value = adc_get_latest_value();
+            int len = snprintf(data_buffer, sizeof(data_buffer), "ADC:%lu\n", adc_value);
+
+            if (len > 0) {
+                esp_ble_gattc_write_char(
+                    spp_gattc_if,
+                    spp_conn_id,
+                    (db+SPP_IDX_SPP_DATA_RECV_VAL)->attribute_handle,
+                    len,
+                    (uint8_t *)data_buffer,
+                    ESP_GATT_WRITE_TYPE_RSP,
+                    ESP_GATT_AUTH_REQ_NONE
+                );
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(100)); // Send every 100ms
+    }
 }
