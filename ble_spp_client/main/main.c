@@ -5,6 +5,7 @@
 #include "esp_log.h"
 #include "ble_spp_client.h"
 #include "adc.h"
+#include "lcd.h"
 
 #define TAG "MAIN"
 
