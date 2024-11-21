@@ -28,7 +28,9 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 
+#define DEVICE_NAME                 "GS-THUMB"
 #define GATTC_TAG                   "GATTC_SPP_DEMO"
+
 #define PROFILE_NUM                 1
 #define PROFILE_APP_ID              0
 #define BT_BD_ADDR_STR              "%02x:%02x:%02x:%02x:%02x:%02x"
@@ -84,7 +86,7 @@ static esp_ble_scan_params_t ble_scan_params = {
     .scan_duplicate         = BLE_SCAN_DUPLICATE_DISABLE
 };
 
-static const char device_name[] = "ble hand controller";
+static const char device_name[] = DEVICE_NAME;
 static bool is_connect = false;
 static uint16_t spp_conn_id = 0;
 static uint16_t spp_mtu_size = 23;
@@ -93,8 +95,8 @@ static uint16_t spp_srv_start_handle = 0;
 static uint16_t spp_srv_end_handle = 0;
 static uint16_t spp_gattc_if = 0xff;
 static char * notify_value_p = NULL;
-static int32_t notify_value_offset = 0;
-static int32_t notify_value_count = 0;
+static int notify_value_offset = 0;
+static int notify_value_count = 0;
 static uint16_t count = SPP_IDX_NB;
 static esp_gattc_db_elem_t *db = NULL;
 static esp_ble_gap_cb_param_t scan_rst;
