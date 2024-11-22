@@ -357,7 +357,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                 (db+cmd+1)->attribute_handle,
                 sizeof(notify_en),
                 (uint8_t *)&notify_en,
-                ESP_GATT_WRITE_TYPE_RSP,
+                ESP_GATT_WRITE_TYPE_NO_RSP,
                 ESP_GATT_AUTH_REQ_NONE);
 
         break;
@@ -506,7 +506,7 @@ void spp_heart_beat_task(void * arg)
                                               (db+SPP_IDX_SPP_HEARTBEAT_VAL)->attribute_handle,
                                               sizeof(heartbeat_s),
                                               (uint8_t *)heartbeat_s,
-                                              ESP_GATT_WRITE_TYPE_RSP,
+                                              ESP_GATT_WRITE_TYPE_NO_RSP,
                                               ESP_GATT_AUTH_REQ_NONE);
                     vTaskDelay(5000 / portTICK_PERIOD_MS);
                 }else{
@@ -575,7 +575,7 @@ void uart_task(void *pvParameters)
                                               (db+SPP_IDX_SPP_DATA_RECV_VAL)->attribute_handle,
                                               event.size,
                                               temp,
-                                              ESP_GATT_WRITE_TYPE_RSP,
+                                              ESP_GATT_WRITE_TYPE_NO_RSP,
                                               ESP_GATT_AUTH_REQ_NONE);
                     free(temp);
                 }
@@ -668,11 +668,11 @@ static void adc_send_task(void *pvParameters) {
                     (db+SPP_IDX_SPP_DATA_RECV_VAL)->attribute_handle,
                     len,
                     (uint8_t *)data_buffer,
-                    ESP_GATT_WRITE_TYPE_RSP,
+                    ESP_GATT_WRITE_TYPE_NO_RSP,
                     ESP_GATT_AUTH_REQ_NONE
                 );
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(100)); // Send every 100ms
+        vTaskDelay(pdMS_TO_TICKS(50)); // Send every 100ms
     }
 }
