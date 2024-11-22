@@ -651,7 +651,7 @@ void spp_client_demo_init(void)
 }
 
 static void adc_send_task(void *pvParameters) {
-    char data_buffer[32];
+    uint8_t data_buffer[2];  // Just 2 bytes for a 12-bit ADC value
 
     while (1) {
         if (is_connect && db != NULL &&
@@ -659,20 +659,21 @@ static void adc_send_task(void *pvParameters) {
              (ESP_GATT_CHAR_PROP_BIT_WRITE_NR | ESP_GATT_CHAR_PROP_BIT_WRITE))) {
 
             uint32_t adc_value = adc_get_latest_value();
-            int len = snprintf(data_buffer, sizeof(data_buffer), "ADC:%lu\n", adc_value);
 
-            if (len > 0) {
-                esp_ble_gattc_write_char(
-                    spp_gattc_if,
-                    spp_conn_id,
-                    (db+SPP_IDX_SPP_DATA_RECV_VAL)->attribute_handle,
-                    len,
-                    (uint8_t *)data_buffer,
-                    ESP_GATT_WRITE_TYPE_NO_RSP,
-                    ESP_GATT_AUTH_REQ_NONE
-                );
-            }
+            // Pack the ADC value into 2 bytes (little-endian)
+            data_buffer[0] = (uint8_t)(adc_value & 0xFF);         // Low byte
+            data_buffer[1] = (uint8_t)((adc_value >> 8) & 0xFF);  // High byte
+
+            esp_ble_gattc_write_char(
+                spp_gattc_if,
+                spp_conn_id,
+                (db+SPP_IDX_SPP_DATA_RECV_VAL)->attribute_handle,
+                sizeof(data_buffer),  // 2 bytes
+                data_buffer,
+                ESP_GATT_WRITE_TYPE_NO_RSP,
+                ESP_GATT_AUTH_REQ_NONE
+            );
         }
-        vTaskDelay(pdMS_TO_TICKS(50)); // Send every 100ms
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
