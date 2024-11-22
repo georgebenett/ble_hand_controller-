@@ -1,9 +1,11 @@
 idf_component_register(
-    SRCS "main.c" "spp_client_demo.c" "adc.c" "lcd.c"
+    SRCS "main.c" "spp_client_demo.c" "adc.c"
     INCLUDE_DIRS "."
     REQUIRES driver 
             nvs_flash 
             bt
             esp_adc
-            esp_lcd
+            hagl
+            hagl_hal
+            spi_flash
 )

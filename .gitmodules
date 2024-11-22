@@ -1,0 +1,6 @@
+[submodule "ble_spp_client/components/hagl_hal"]
+	path = ble_spp_client/components/hagl_hal
+	url = git@github.com:tuupola/hagl_esp_mipi.git
+[submodule "ble_spp_client/components/hagl"]
+	path = ble_spp_client/components/hagl
+	url = git@github.com:tuupola/hagl.git

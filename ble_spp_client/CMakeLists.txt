@@ -4,3 +4,5 @@ cmake_minimum_required(VERSION 3.16)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(spp_client_demo)
+
+set(PARTITION_TABLE_CSV "partitions.csv")

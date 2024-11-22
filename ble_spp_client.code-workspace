@@ -10,7 +10,8 @@
             "adc_oneshot.h": "c",
             "freertos.h": "c",
             "task.h": "c",
-            "string.h": "c"
+            "string.h": "c",
+            "hagl.h": "c"
         }
     }
 }
