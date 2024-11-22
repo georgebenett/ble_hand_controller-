@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
-#define ADC_SAMPLING_TICKS 10
+#define ADC_SAMPLING_TICKS 20
 #define THROTTLE_PIN ADC_CHANNEL_3
 
 #define ADC_INPUT_MAX_VALUE 2300

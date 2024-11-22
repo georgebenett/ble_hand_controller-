@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <wchar.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "nvs_flash.h"
@@ -7,7 +8,7 @@
 #include "adc.h"
 #include "hagl.h"
 #include "hagl_hal.h"
-#include "font5x8.h"
+#include "font6x9.h"
 #include "driver/gpio.h"
 #include <driver/spi_master.h>
 
@@ -15,8 +16,7 @@
 
 // Add these function declarations at the top, after includes
 void lcd_update_task(void *pvParameters);
-esp_err_t lcd_init(void);  // You'll need to implement this
-int adc_get_value(void);   // You'll need to implement this
+esp_err_t lcd_init(void);  
 
 // Add at the top with other global declarations
 static hagl_backend_t *display_backend = NULL;
@@ -70,38 +70,29 @@ void app_main(void)
 // Update the lcd_update_task function
 void lcd_update_task(void *pvParameters)
 {
-    // Use the global backend instead of trying to get it
     hagl_backend_t *backend = display_backend;
-    
-    // Define some basic colors (RGB565 format)
-    uint16_t RED = 0x001F;;     // Full red
-    uint16_t GREEN = 0x07E0;   // Full green
-    uint16_t BLUE = 0xF800;    // Full blue
-    uint16_t WHITE = 0xFFFF;   // White
-    uint16_t YELLOW = 0xFFE0;  // Yellow
+    uint16_t WHITE = 0xFFFF;
+    uint16_t BLACK = 0x0000;
+    wchar_t adc_str[16];
+    int last_adc_value = -1;
+    wchar_t last_adc_str[16] = L"";
     
     while (1) {
-        // Clear the screen with black
-        hagl_clear(backend);
+        int adc_value = adc_read_value();
         
-        // Draw several circles with different colors and positions
-        hagl_fill_circle(backend, 60, 60, 30, RED);          // Red circle
-        hagl_fill_circle(backend, 120, 60, 25, GREEN);       // Green circle
-        hagl_fill_circle(backend, 180, 60, 20, BLUE);        // Blue circle
-        
-        // Draw some outlined circles
-        hagl_draw_circle(backend, 60, 120, 35, WHITE);       // White circle outline
-        hagl_draw_circle(backend, 120, 120, 30, YELLOW);     // Yellow circle outline
-        
-        // Draw a pattern of small filled circles
-        for(int i = 0; i < 5; i++) {
-            hagl_fill_circle(backend, 30 + (i * 40), 180, 10, WHITE);
+        if (adc_value != last_adc_value) {
+            // First erase old value with black text
+            hagl_put_text(backend, last_adc_str, 150, 150, BLACK, font6x9);
+            
+            // Then draw new value in white
+            swprintf(adc_str, sizeof(adc_str)/sizeof(wchar_t), L"%d", adc_value);
+            hagl_put_text(backend, adc_str, 150, 150, WHITE, font6x9);
+            
+            hagl_flush(backend);
+            wcscpy(last_adc_str, adc_str);
+            last_adc_value = adc_value;
         }
         
-        // Flush to display
-        hagl_flush(backend);
-        
-        // Wait before next update
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 } 
