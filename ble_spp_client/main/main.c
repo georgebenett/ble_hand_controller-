@@ -54,9 +54,14 @@ void app_main(void)
     // Initialize LCD and HAGL
     ESP_ERROR_CHECK(lcd_init());
 
-    // Initialize ADC and start tasks
+    // Initialize ADC and start tasks (includes calibration)
     ESP_ERROR_CHECK(adc_init());
     adc_start_task();
+
+    // Wait for ADC calibration to complete before continuing
+    while (!adc_is_calibrated()) {
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 
     // Create task for LCD update
     xTaskCreate(lcd_update_task, "lcd_update", 4096, NULL, 5, NULL);

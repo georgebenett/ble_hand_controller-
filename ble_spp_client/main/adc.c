@@ -6,6 +6,8 @@
 #include "freertos/queue.h"
 #include <string.h>
 #include <stdint.h>
+#include "nvs_flash.h"
+#include "nvs.h"
 
 static const char *TAG = "ADC";
 static adc_oneshot_unit_handle_t adc1_handle;
@@ -16,6 +18,9 @@ static uint32_t latest_adc_value = 0;
 static bool adc_initialized = false;
 static int error_count = 0;
 static const int MAX_ERRORS = 5;
+static uint32_t adc_input_max_value = ADC_INITIAL_MAX_VALUE;
+static uint32_t adc_input_min_value = ADC_INITIAL_MIN_VALUE;
+static bool calibration_done = false;
 
 // Add this function prototype
 void adc_deinit(void);
@@ -121,6 +126,9 @@ void adc_start_task(void) {
     // Add delay after initialization
     vTaskDelay(pdMS_TO_TICKS(100));
 
+    // Perform calibration before starting the main task
+    adc_calibrate();
+
     xTaskCreate(adc_task, "adc_task", 4096, NULL, 5, NULL);
 }
 
@@ -153,18 +161,160 @@ void adc_deinit(void)
     adc_initialized = false;
 }
 
-uint8_t map_adc_value(uint32_t adc_value) {
-    // Constrain input value to the defined range
-    if (adc_value < ADC_INPUT_MIN_VALUE) {
-        adc_value = ADC_INPUT_MIN_VALUE;
+static esp_err_t load_calibration_from_nvs(void) {
+    nvs_handle_t nvs_handle;
+    esp_err_t err;
+
+    // Open NVS
+    err = nvs_open(NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
+    if (err != ESP_OK) {
+        return err;
     }
-    if (adc_value > ADC_INPUT_MAX_VALUE) {
-        adc_value = ADC_INPUT_MAX_VALUE;
+
+    // Try to read calibration flag
+    uint8_t is_calibrated = 0;
+    err = nvs_get_u8(nvs_handle, NVS_KEY_CALIBRATED, &is_calibrated);
+    if (err != ESP_OK || !is_calibrated) {
+        nvs_close(nvs_handle);
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    // Read calibration values
+    err = nvs_get_u32(nvs_handle, NVS_KEY_MIN, &adc_input_min_value);
+    if (err != ESP_OK) {
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    err = nvs_get_u32(nvs_handle, NVS_KEY_MAX, &adc_input_max_value);
+    if (err != ESP_OK) {
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    nvs_close(nvs_handle);
+    calibration_done = true;
+    return ESP_OK;
+}
+
+static esp_err_t save_calibration_to_nvs(void) {
+    nvs_handle_t nvs_handle;
+    esp_err_t err;
+
+    // Open NVS
+    err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    // Save calibration values
+    err = nvs_set_u32(nvs_handle, NVS_KEY_MIN, adc_input_min_value);
+    if (err != ESP_OK) {
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    err = nvs_set_u32(nvs_handle, NVS_KEY_MAX, adc_input_max_value);
+    if (err != ESP_OK) {
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    // Set calibration flag
+    err = nvs_set_u8(nvs_handle, NVS_KEY_CALIBRATED, 1);
+    if (err != ESP_OK) {
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    // Commit changes
+    err = nvs_commit(nvs_handle);
+    nvs_close(nvs_handle);
+    return err;
+}
+
+void adc_calibrate(void) {
+    // First try to load calibration from NVS
+    if (load_calibration_from_nvs() == ESP_OK) {
+        ESP_LOGI(TAG, "Loaded calibration from NVS");
+        return;
+    }
+
+    ESP_LOGI(TAG, "Starting ADC calibration...");
+    ESP_LOGI(TAG, "Please move throttle through full range during the next 6 seconds");
+
+    uint32_t min_value = UINT32_MAX;
+    uint32_t max_value = 0;
+    int progress = 0;
+    int last_reported_progress = -1;
+
+    // Take multiple samples to find the actual range
+    for (int i = 0; i < ADC_CALIBRATION_SAMPLES; i++) {
+        int32_t value = adc_read_value();
+        if (value != -1) {  // Valid reading
+            if (value < min_value) min_value = value;
+            if (value > max_value) max_value = value;
+        }
+
+        // Calculate and report progress every 10%
+        progress = (i * 100) / ADC_CALIBRATION_SAMPLES;
+        if (progress % 10 == 0 && progress != last_reported_progress) {
+            ESP_LOGI(TAG, "Calibration progress: %d%%", progress);
+            last_reported_progress = progress;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(ADC_CALIBRATION_DELAY_MS));
+    }
+
+    // Only update if we got valid readings
+    if (min_value != UINT32_MAX && max_value != 0) {
+        // Add small margins to prevent edge cases (5% margin)
+        uint32_t range = max_value - min_value;
+        adc_input_min_value = min_value + (range * 0.05);
+        adc_input_max_value = max_value - (range * 0.05);
+
+        calibration_done = true;
+
+        ESP_LOGI(TAG, "ADC calibration complete:");
+        ESP_LOGI(TAG, "Raw min value: %lu", min_value);
+        ESP_LOGI(TAG, "Raw max value: %lu", max_value);
+        ESP_LOGI(TAG, "Calibrated min value: %lu", adc_input_min_value);
+        ESP_LOGI(TAG, "Calibrated max value: %lu", adc_input_max_value);
+    } else {
+        ESP_LOGE(TAG, "ADC calibration failed - invalid readings");
+    }
+
+    // Save calibration to NVS
+    if (save_calibration_to_nvs() != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to save calibration to NVS");
+    }
+
+    // After successful calibration, save to NVS
+    if (calibration_done) {
+        if (save_calibration_to_nvs() == ESP_OK) {
+            ESP_LOGI(TAG, "Calibration saved to NVS");
+        } else {
+            ESP_LOGE(TAG, "Failed to save calibration to NVS");
+        }
+    }
+}
+
+bool adc_is_calibrated(void) {
+    return calibration_done;
+}
+
+uint8_t map_adc_value(uint32_t adc_value) {
+    // Constrain input value to the calibrated range
+    if (adc_value < adc_input_min_value) {
+        adc_value = adc_input_min_value;
+    }
+    if (adc_value > adc_input_max_value) {
+        adc_value = adc_input_max_value;
     }
 
     // Perform the mapping
-    return (uint8_t)((adc_value - ADC_INPUT_MIN_VALUE) *
+    return (uint8_t)((adc_value - adc_input_min_value) *
            (ADC_OUTPUT_MAX_VALUE - ADC_OUTPUT_MIN_VALUE) /
-           (ADC_INPUT_MAX_VALUE - ADC_INPUT_MIN_VALUE) +
+           (adc_input_max_value - adc_input_min_value) +
            ADC_OUTPUT_MIN_VALUE);
 }

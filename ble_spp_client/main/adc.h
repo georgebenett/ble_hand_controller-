@@ -5,15 +5,28 @@
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "nvs_flash.h"
+#include "nvs.h"
 
 #define ADC_SAMPLING_TICKS 20
 #define THROTTLE_PIN ADC_CHANNEL_2
+#define BATTERY_PIN  ADC_CHANNEL_3
 
-#define ADC_INPUT_MAX_VALUE 3230
-#define ADC_INPUT_MIN_VALUE 1320
+// Initial values that will be updated by calibration
+#define ADC_INITIAL_MAX_VALUE 4095  // 12-bit ADC max
+#define ADC_INITIAL_MIN_VALUE 0
 
 #define ADC_OUTPUT_MAX_VALUE 255
 #define ADC_OUTPUT_MIN_VALUE 0
+
+// Calibration settings
+#define ADC_CALIBRATION_SAMPLES 300  // 300 samples over 6 seconds = 1 sample every 20ms
+#define ADC_CALIBRATION_DELAY_MS 20  // 20ms between samples
+
+#define NVS_NAMESPACE "adc_cal"
+#define NVS_KEY_MIN "min_val"
+#define NVS_KEY_MAX "max_val"
+#define NVS_KEY_CALIBRATED "cal_done"
 
 esp_err_t adc_init(void);
 int32_t adc_read_value(void);
@@ -21,5 +34,7 @@ void adc_start_task(void);
 QueueHandle_t adc_get_queue(void);
 uint32_t adc_get_latest_value(void);
 uint8_t map_adc_value(uint32_t adc_value);
+void adc_calibrate(void);
+bool adc_is_calibrated(void);
 
-#endif // ADC_H 
+#endif // ADC_H
