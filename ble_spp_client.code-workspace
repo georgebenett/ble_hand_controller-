@@ -11,7 +11,9 @@
             "freertos.h": "c",
             "task.h": "c",
             "string.h": "c",
-            "hagl.h": "c"
+            "hagl.h": "c",
+            "queue.h": "c",
+            "esp_err.h": "c"
         }
     }
 }

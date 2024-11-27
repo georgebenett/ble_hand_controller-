@@ -53,7 +53,7 @@ esp_err_t adc_init(void)
         ESP_LOGE(TAG, "ADC channel configuration failed");
         return ret;
     }
-    
+
     adc_initialized = true;
     return ESP_OK;
 }
@@ -73,14 +73,14 @@ int32_t adc_read_value(void)
     for (int i = 0; i < NUM_SAMPLES; i++) {
         int adc_raw = 0;
         esp_err_t ret = adc_oneshot_read(adc1_handle, THROTTLE_PIN, &adc_raw);
-        
+
         if (ret == ESP_OK) {
             sum += adc_raw;
             valid_samples++;
         }
-        
+
         // Small delay between samples
-        vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 
     return valid_samples > 0 ? (sum / valid_samples) : -1;
@@ -103,9 +103,10 @@ static void adc_task(void *pvParameters) {
             continue;
         }
         error_count = 0;  // Reset error count on successful read
-        
-        latest_adc_value = adc_value;
-        xQueueSend(adc_display_queue, &adc_value, 0);
+
+        uint8_t mapped_value = map_adc_value(adc_value);
+        latest_adc_value = mapped_value;
+        xQueueSend(adc_display_queue, &mapped_value, 0);
         vTaskDelay(pdMS_TO_TICKS(ADC_SAMPLING_TICKS));
     }
 }
@@ -116,10 +117,10 @@ void adc_start_task(void) {
         ESP_LOGE(TAG, "ADC initialization failed, not starting task");
         return;
     }
-    
+
     // Add delay after initialization
     vTaskDelay(pdMS_TO_TICKS(100));
-    
+
     xTaskCreate(adc_task, "adc_task", 4096, NULL, 5, NULL);
 }
 
@@ -150,4 +151,20 @@ void adc_deinit(void)
     }
 
     adc_initialized = false;
-} 
+}
+
+uint8_t map_adc_value(uint32_t adc_value) {
+    // Constrain input value to the defined range
+    if (adc_value < ADC_INPUT_MIN_VALUE) {
+        adc_value = ADC_INPUT_MIN_VALUE;
+    }
+    if (adc_value > ADC_INPUT_MAX_VALUE) {
+        adc_value = ADC_INPUT_MAX_VALUE;
+    }
+
+    // Perform the mapping
+    return (uint8_t)((adc_value - ADC_INPUT_MIN_VALUE) *
+           (ADC_OUTPUT_MAX_VALUE - ADC_OUTPUT_MIN_VALUE) /
+           (ADC_INPUT_MAX_VALUE - ADC_INPUT_MIN_VALUE) +
+           ADC_OUTPUT_MIN_VALUE);
+}
