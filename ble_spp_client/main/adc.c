@@ -21,6 +21,7 @@ static const int MAX_ERRORS = 5;
 static uint32_t adc_input_max_value = ADC_INITIAL_MAX_VALUE;
 static uint32_t adc_input_min_value = ADC_INITIAL_MIN_VALUE;
 static bool calibration_done = false;
+static esp_err_t load_calibration_from_nvs(void);
 
 // Add this function prototype
 void adc_deinit(void);
@@ -126,8 +127,22 @@ void adc_start_task(void) {
     // Add delay after initialization
     vTaskDelay(pdMS_TO_TICKS(100));
 
-    // Perform calibration before starting the main task
+#if CALIBRATE_ADC
+    ESP_LOGI(TAG, "Force calibration flag set, performing calibration");
+    // Clear existing calibration
+    nvs_handle_t nvs_handle;
+    if (nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle) == ESP_OK) {
+        nvs_erase_key(nvs_handle, NVS_KEY_CALIBRATED);
+        nvs_commit(nvs_handle);
+        nvs_close(nvs_handle);
+    }
     adc_calibrate();
+#else
+    // Only calibrate if no valid calibration exists
+    if (load_calibration_from_nvs() != ESP_OK) {
+        adc_calibrate();
+    }
+#endif
 
     xTaskCreate(adc_task, "adc_task", 4096, NULL, 5, NULL);
 }

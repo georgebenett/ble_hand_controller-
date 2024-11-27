@@ -8,6 +8,8 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
+#define CALIBRATE_ADC 0
+
 #define ADC_SAMPLING_TICKS 20
 #define THROTTLE_PIN ADC_CHANNEL_2
 #define BATTERY_PIN  ADC_CHANNEL_3
