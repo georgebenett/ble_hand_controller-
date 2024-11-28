@@ -5,7 +5,5 @@ idf_component_register(
             nvs_flash 
             bt
             esp_adc
-            hagl
-            hagl_hal
             spi_flash
 )
