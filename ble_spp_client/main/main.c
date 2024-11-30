@@ -186,15 +186,15 @@ void app_main(void)
     // Create label for ADC value with larger font
     adc_label = lv_label_create(lv_scr_act());
     lv_obj_align(adc_label, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_text_font(adc_label, &lv_font_montserrat_14, 0);  // Use large 48px font
+    lv_obj_set_style_text_font(adc_label, &lv_font_montserrat_48, 0);  // Largest built-in font
     lv_label_set_text(adc_label, "0");
     
     // Set screen background color to black
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(0, 0, 0), LV_PART_MAIN);
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), LV_PART_MAIN);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, LV_PART_MAIN);
     
     // Set text color to white
-    lv_obj_set_style_text_color(adc_label, lv_color_make(255, 255, 255), LV_PART_MAIN);
+    lv_obj_set_style_text_color(adc_label, lv_color_white(), LV_PART_MAIN);
 
     // Create LVGL handler task
     xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
