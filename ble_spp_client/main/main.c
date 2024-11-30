@@ -20,6 +20,9 @@
 
 #define TAG "MAIN"
 
+// Add these buffer declarations before init_display()
+static lv_color_t *buf1 = NULL;
+static lv_color_t *buf2 = NULL;
 
 // Define your display's SPI pins
 #define TFT_MOSI_PIN GPIO_NUM_10
@@ -81,25 +84,22 @@ void init_display(void) {
     
     // Set display orientation and inversion if needed
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle, 0, 0));
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
-    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, false));
+    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
 
     // Initialize LVGL
     lv_init();
 
-    // Allocate smaller draw buffers for better performance
-    static lv_color_t *buf1 = NULL;
-    static lv_color_t *buf2 = NULL;
-    
-    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * 5 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    // Allocate draw buffers for better performance
+    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1 != NULL);
-    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * 5 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf2 != NULL);
 
     // Initialize LVGL draw buffers
     static lv_disp_draw_buf_t draw_buf;
-    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * 5);
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * 20);
 
     // Register display driver
     static lv_disp_drv_t disp_drv;
@@ -130,15 +130,13 @@ static void update_display_task(void *pvParameters) {
     
     while (1) {
         uint32_t adc_value = adc_get_latest_value();
-        snprintf(adc_str, sizeof(adc_str), "ADC Value: %lu", adc_value);
+        snprintf(adc_str, sizeof(adc_str), "%lu", adc_value);
         
-        // Update label text in LVGL context
         if (adc_label != NULL) {
             lv_label_set_text(adc_label, adc_str);
         }
         
-        // Use vTaskDelayUntil for more precise timing
-        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(100));
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(20));
     }
 }
 
@@ -148,14 +146,11 @@ static void lv_tick_task(void *arg) {
 }
 
 static void lvgl_handler_task(void *pvParameters) {
-    const TickType_t xFrequency = pdMS_TO_TICKS(10); // 10ms period
+    const TickType_t xFrequency = pdMS_TO_TICKS(15);
     TickType_t xLastWakeTime = xTaskGetTickCount();
     
     while (1) {
-        // Run LVGL tasks
         lv_timer_handler();
-        
-        // Always use the fixed frequency for the delay
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
@@ -188,19 +183,17 @@ void app_main(void)
 
     init_display();
     
-    // Create label for ADC value
+    // Create label for ADC value with larger font
     adc_label = lv_label_create(lv_scr_act());
     lv_obj_align(adc_label, LV_ALIGN_CENTER, 0, 0);
-    lv_label_set_text(adc_label, "ADC: Initializing...");
+    lv_obj_set_style_text_font(adc_label, &lv_font_montserrat_14, 0);  // Use large 48px font
+    lv_label_set_text(adc_label, "0");
     
-    // Set text color to red (you can change this to any color you prefer)
-    lv_obj_set_style_text_color(adc_label, lv_color_make(255, 0, 0), LV_PART_MAIN);
-
-    // Set screen background color to blue
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(0, 0, 255), LV_PART_MAIN);
+    // Set screen background color to black
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(0, 0, 0), LV_PART_MAIN);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, LV_PART_MAIN);
     
-
+    // Set text color to white
     lv_obj_set_style_text_color(adc_label, lv_color_make(255, 255, 255), LV_PART_MAIN);
 
     // Create LVGL handler task
