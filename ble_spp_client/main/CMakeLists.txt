@@ -6,4 +6,6 @@ idf_component_register(
             bt
             esp_adc
             spi_flash
+            esp_lcd
+            lvgl
 )

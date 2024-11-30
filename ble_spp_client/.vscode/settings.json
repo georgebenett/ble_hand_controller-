@@ -1,12 +1,19 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
   "idf.flashType": "UART",
-  "idf.port": "/dev/ttyACM1",
+  "idf.port": "/dev/ttyACM0",
   "idf.adapterTargetName": "esp32c3",
   "idf.openOcdConfigs": [
     "board/esp32c3-builtin.cfg"
   ],
   "files.associations": {
-    "string.h": "c"
+    "string.h": "c",
+    "ble_spp_client.h": "c",
+    "lvgl.h": "c",
+    "esp_lcd_panel_vendor.h": "c",
+    "esp_lcd_panel_ops.h": "c",
+    "esp_lcd_panel_dev.h": "c",
+    "esp_lcd_panel_nt35510.h": "c",
+    "esp_lcd_panel_st7789.h": "c"
   }
 }
