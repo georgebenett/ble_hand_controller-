@@ -14,15 +14,17 @@ static char adc_str[32];
 
 static void update_display_task(void *pvParameters) {
     TickType_t last_wake_time = xTaskGetTickCount();
-    
+
     while (1) {
-        uint32_t adc_value = adc_get_latest_value();
-        snprintf(adc_str, sizeof(adc_str), "%lu", adc_value);
-        
+        float voltage = get_latest_voltage();
+        int32_t rpm = get_latest_rpm();
+
+        snprintf(adc_str, sizeof(adc_str), "%.2fv\n%ld", voltage, rpm);
+
         if (adc_label != NULL) {
             lv_label_set_text(adc_label, adc_str);
         }
-        
+
         vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(20));
     }
 }
@@ -54,13 +56,13 @@ void app_main(void)
 
     // Initialize LCD and LVGL
     lcd_init();
-    
+
     // Create and configure display label
     adc_label = lcd_create_label("0");
-    
+
     // Start display tasks
     lcd_start_tasks();
-    
+
     // Create display update task
     xTaskCreate(update_display_task, "update_display", 4096, NULL, 4, NULL);
 

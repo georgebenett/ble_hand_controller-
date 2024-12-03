@@ -115,6 +115,9 @@ static esp_bt_uuid_t spp_service_uuid = {
     .uuid = {.uuid16 = ESP_GATT_SPP_SERVICE_UUID,},
 };
 
+static float latest_voltage = 0.0f;
+static int32_t latest_rpm = 0;
+
 static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
 {
     uint8_t handle = 0;
@@ -124,63 +127,30 @@ static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
     }else{
         ESP_LOGI(GATTC_TAG,"+INDICATE:handle = %d,length = %d ", p_data->notify.handle, p_data->notify.value_len);
     }
+
     handle = p_data->notify.handle;
     if(db == NULL) {
         ESP_LOGE(GATTC_TAG, " %s db is NULL", __func__);
         return;
     }
+
     if(handle == db[SPP_IDX_SPP_DATA_NTY_VAL].attribute_handle){
-#ifdef SPP_DEBUG_MODE
-        esp_log_buffer_char(GATTC_TAG, (char *)p_data->notify.value, p_data->notify.value_len);
-#else
-        if((p_data->notify.value[0] == '#')&&(p_data->notify.value[1] == '#')){
-            if((++notify_value_count) != p_data->notify.value[3]){
-                if(notify_value_p != NULL){
-                    free(notify_value_p);
-                }
-                notify_value_count = 0;
-                notify_value_p = NULL;
-                notify_value_offset = 0;
-                ESP_LOGE(GATTC_TAG,"notify value count is not continuous,%s",__func__);
-                return;
-            }
-            if(p_data->notify.value[3] == 1){
-                notify_value_p = (char *)malloc(((spp_mtu_size-7)*(p_data->notify.value[2]))*sizeof(char));
-                if(notify_value_p == NULL){
-                    ESP_LOGE(GATTC_TAG, "malloc failed,%s L#%d",__func__,__LINE__);
-                    notify_value_count = 0;
-                    return;
-                }
-                memcpy((notify_value_p + notify_value_offset),(p_data->notify.value + 4),(p_data->notify.value_len - 4));
-                if(p_data->notify.value[2] == p_data->notify.value[3]){
-                    uart_write_bytes(UART_NUM_0, (char *)(notify_value_p), (p_data->notify.value_len - 4 + notify_value_offset));
-                    free(notify_value_p);
-                    notify_value_p = NULL;
-                    notify_value_offset = 0;
-                    return;
-                }
-                notify_value_offset += (p_data->notify.value_len - 4);
-            }else if(p_data->notify.value[3] <= p_data->notify.value[2]){
-                memcpy((notify_value_p + notify_value_offset),(p_data->notify.value + 4),(p_data->notify.value_len - 4));
-                if(p_data->notify.value[3] == p_data->notify.value[2]){
-                    uart_write_bytes(UART_NUM_0, (char *)(notify_value_p), (p_data->notify.value_len - 4 + notify_value_offset));
-                    free(notify_value_p);
-                    notify_value_count = 0;
-                    notify_value_p = NULL;
-                    notify_value_offset = 0;
-                    return;
-                }
-                notify_value_offset += (p_data->notify.value_len - 4);
-            }
-        }else{
-            uart_write_bytes(UART_NUM_0, (char *)(p_data->notify.value), p_data->notify.value_len);
+        // Check if we received the expected 6 bytes
+        if(p_data->notify.value_len == 6) {
+            // Decode voltage (first 2 bytes)
+            int16_t voltage_raw = (p_data->notify.value[0] << 8) | p_data->notify.value[1];
+            latest_voltage = voltage_raw / 100.0f;
+
+            // Decode RPM (last 4 bytes)
+            latest_rpm = (p_data->notify.value[2] << 24) |
+                        (p_data->notify.value[3] << 16) |
+                        (p_data->notify.value[4] << 8) |
+                        p_data->notify.value[5];
+
+            ESP_LOGI(GATTC_TAG, "Received: Voltage=%.2fV, RPM=%ld", latest_voltage, latest_rpm);
+        } else {
+            ESP_LOGW(GATTC_TAG, "Unexpected data length: %d", p_data->notify.value_len);
         }
-#endif
-    }else if(handle == ((db+SPP_IDX_SPP_STATUS_VAL)->attribute_handle)){
-        esp_log_buffer_char(GATTC_TAG, (char *)p_data->notify.value, p_data->notify.value_len);
-        //TODO:server notify status characteristic
-    }else{
-        esp_log_buffer_char(GATTC_TAG, (char *)p_data->notify.value, p_data->notify.value_len);
     }
 }
 
@@ -676,4 +646,14 @@ static void adc_send_task(void *pvParameters) {
         }
         vTaskDelay(pdMS_TO_TICKS(50));
     }
+}
+
+float get_latest_voltage(void)
+{
+    return latest_voltage;
+}
+
+int32_t get_latest_rpm(void)
+{
+    return latest_rpm;
 }
