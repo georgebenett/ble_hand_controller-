@@ -117,6 +117,10 @@ static esp_bt_uuid_t spp_service_uuid = {
 
 static float latest_voltage = 0.0f;
 static int32_t latest_rpm = 0;
+static float latest_current_motor = 0.0f;
+static float latest_current_in = 0.0f;
+static float latest_amp_hours = 0.0f;
+static float latest_amp_hours_charged = 0.0f;
 
 static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
 {
@@ -135,19 +139,37 @@ static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
     }
 
     if(handle == db[SPP_IDX_SPP_DATA_NTY_VAL].attribute_handle){
-        // Check if we received the expected 6 bytes
-        if(p_data->notify.value_len == 6) {
+        // Check if we received the expected 14 bytes
+        if(p_data->notify.value_len == 14) {
             // Decode voltage (first 2 bytes)
             int16_t voltage_raw = (p_data->notify.value[0] << 8) | p_data->notify.value[1];
             latest_voltage = voltage_raw / 100.0f;
 
-            // Decode RPM (last 4 bytes)
+            // Decode RPM (next 4 bytes)
             latest_rpm = (p_data->notify.value[2] << 24) |
                         (p_data->notify.value[3] << 16) |
                         (p_data->notify.value[4] << 8) |
                         p_data->notify.value[5];
 
-            ESP_LOGI(GATTC_TAG, "Received: Voltage=%.2fV, RPM=%ld", latest_voltage, latest_rpm);
+            // Decode current_motor (next 2 bytes)
+            int16_t current_motor_raw = (p_data->notify.value[6] << 8) | p_data->notify.value[7];
+            latest_current_motor = current_motor_raw / 100.0f;
+
+            // Decode current_in (next 2 bytes)
+            int16_t current_in_raw = (p_data->notify.value[8] << 8) | p_data->notify.value[9];
+            latest_current_in = current_in_raw / 100.0f;
+
+            // Decode amp_hours (next 2 bytes)
+            int16_t amp_hours_raw = (p_data->notify.value[10] << 8) | p_data->notify.value[11];
+            latest_amp_hours = amp_hours_raw / 100.0f;
+
+            // Decode amp_hours_charged (last 2 bytes)
+            int16_t amp_hours_charged_raw = (p_data->notify.value[12] << 8) | p_data->notify.value[13];
+            latest_amp_hours_charged = amp_hours_charged_raw / 100.0f;
+
+            ESP_LOGI(GATTC_TAG, "Received: V=%.2fV, RPM=%ld, Motor=%.2fA, In=%.2fA, AH=%.2f, AHC=%.2f",
+                    latest_voltage, latest_rpm, latest_current_motor, latest_current_in,
+                    latest_amp_hours, latest_amp_hours_charged);
         } else {
             ESP_LOGW(GATTC_TAG, "Unexpected data length: %d", p_data->notify.value_len);
         }
@@ -656,4 +678,24 @@ float get_latest_voltage(void)
 int32_t get_latest_rpm(void)
 {
     return latest_rpm;
+}
+
+float get_latest_current_motor(void)
+{
+    return latest_current_motor;
+}
+
+float get_latest_current_in(void)
+{
+    return latest_current_in;
+}
+
+float get_latest_amp_hours(void)
+{
+    return latest_amp_hours;
+}
+
+float get_latest_amp_hours_charged(void)
+{
+    return latest_amp_hours_charged;
 }
