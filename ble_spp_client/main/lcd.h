@@ -21,4 +21,4 @@ void lcd_init(void);
 lv_obj_t* lcd_create_label(const char* initial_text);
 void lcd_start_tasks(void);
 void lcd_enable_update(void);
-void lcd_disable_update(void); 
+void lcd_disable_update(void);
