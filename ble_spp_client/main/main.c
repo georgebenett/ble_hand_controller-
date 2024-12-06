@@ -85,11 +85,10 @@ static void check_sleep_conditions(void *pvParameters)
                     lcd_reset_loading_bar();  // Reset the pointer
 
                     // Configure wakeup on button press (active low)
-                    ESP_ERROR_CHECK(gpio_wakeup_enable(SLEEP_PIN, GPIO_INTR_LOW_LEVEL));
-                    ESP_ERROR_CHECK(esp_sleep_enable_gpio_wakeup());
+                    ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << SLEEP_PIN, ESP_GPIO_WAKEUP_GPIO_LOW));
 
                     // Enter light sleep
-                    esp_light_sleep_start();
+                    esp_deep_sleep_start();
 
                     // After wakeup, log and restart
                     ESP_LOGI(TAG, "Waking up from light sleep - performing restart");
