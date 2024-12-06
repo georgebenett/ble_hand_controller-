@@ -14,6 +14,7 @@ static lv_color_t *buf1 = NULL;
 static lv_color_t *buf2 = NULL;
 static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
+lv_obj_t *loading_bar = NULL;
 
 // Function prototypes
 static void flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map);
@@ -21,6 +22,20 @@ static void lv_tick_task(void *arg);
 static void lvgl_handler_task(void *pvParameters);
 
 void lcd_init(void) {
+    // Configure GPIO20 and GPIO9
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << GPIO_NUM_20) | (1ULL << GPIO_NUM_9),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    // Set GPIO20 to 0 and GPIO9 to 1
+    ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_20, 0));
+    ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_9, 1));
+
     spi_bus_config_t buscfg = {
         .mosi_io_num = TFT_MOSI_PIN,
         .sclk_io_num = TFT_SCLK_PIN,
@@ -99,9 +114,9 @@ static void lv_tick_task(void *arg) {
 }
 
 static void lvgl_handler_task(void *pvParameters) {
-    const TickType_t xFrequency = pdMS_TO_TICKS(15);
+    const TickType_t xFrequency = pdMS_TO_TICKS(20);
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    
+
     while (1) {
         lv_timer_handler();
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -113,14 +128,54 @@ lv_obj_t* lcd_create_label(const char* initial_text) {
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_48, 0);
     lv_label_set_text(label, initial_text);
-    
+
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), LV_PART_MAIN);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_set_style_text_color(label, lv_color_white(), LV_PART_MAIN);
-    
+
     return label;
 }
 
 void lcd_start_tasks(void) {
     xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
-} 
+}
+
+void lcd_show_loading_bar(uint8_t percentage) {
+    if (loading_bar == NULL) {
+        // Create loading bar if it doesn't exist
+        loading_bar = lv_bar_create(lv_scr_act());
+        lv_obj_set_size(loading_bar, LV_HOR_RES_MAX - 20, 10);
+        lv_obj_align(loading_bar, LV_ALIGN_BOTTOM_MID, 0, -50);
+
+        // Set background style (track)
+        lv_obj_set_style_bg_color(loading_bar, lv_color_black(), LV_PART_MAIN);
+        lv_obj_set_style_bg_opa(loading_bar, LV_OPA_COVER, LV_PART_MAIN);
+
+        // Set indicator style (the moving part) to green
+        lv_obj_set_style_bg_color(loading_bar, lv_color_make(0, 255, 0), LV_PART_INDICATOR);
+        lv_obj_set_style_bg_opa(loading_bar, LV_OPA_COVER, LV_PART_INDICATOR);
+
+        // Add radius to make it rounded
+        lv_obj_set_style_radius(loading_bar, 3, LV_PART_MAIN);
+        lv_obj_set_style_radius(loading_bar, 3, LV_PART_INDICATOR);
+
+        // Set border color to match background
+        lv_obj_set_style_border_color(loading_bar, lv_color_black(), LV_PART_MAIN);
+        lv_obj_set_style_border_width(loading_bar, 0, LV_PART_MAIN);
+
+        lv_bar_set_range(loading_bar, 0, 100);
+    }
+
+    lv_bar_set_value(loading_bar, percentage, LV_ANIM_ON);
+}
+
+void lcd_hide_loading_bar(void) {
+    if (loading_bar != NULL) {
+        lv_obj_del(loading_bar);
+        loading_bar = NULL;
+    }
+}
+
+void lcd_reset_loading_bar(void) {
+    loading_bar = NULL;
+}

@@ -22,3 +22,6 @@ lv_obj_t* lcd_create_label(const char* initial_text);
 void lcd_start_tasks(void);
 void lcd_enable_update(void);
 void lcd_disable_update(void);
+void lcd_show_loading_bar(uint8_t percentage);
+void lcd_hide_loading_bar(void);
+void lcd_reset_loading_bar(void);

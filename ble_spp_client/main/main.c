@@ -11,7 +11,7 @@
 
 #define TAG "MAIN"
 #define SLEEP_PIN GPIO_NUM_4
-#define SLEEP_TIMEOUT_MS 3000
+#define SLEEP_TIMEOUT_MS 2000
 
 static lv_obj_t *adc_label = NULL;
 static char adc_str[32];
@@ -62,14 +62,27 @@ static void check_sleep_conditions(void *pvParameters)
                 pin_was_low = true;
                 pin_low_time = xTaskGetTickCount();
             } else {
-                // Check if button has been held for 3 seconds
-                if ((xTaskGetTickCount() - pin_low_time) * portTICK_PERIOD_MS >= SLEEP_TIMEOUT_MS) {
+                // Calculate how long the button has been held
+                uint32_t elapsed_ms = (xTaskGetTickCount() - pin_low_time) * portTICK_PERIOD_MS;
+
+                // Show progress only while holding (up to SLEEP_TIMEOUT_MS)
+                if (elapsed_ms < SLEEP_TIMEOUT_MS) {
+                    uint8_t progress = (elapsed_ms * 100) / SLEEP_TIMEOUT_MS;
+                    lcd_show_loading_bar(progress);
+                }
+
+                // Check if button has been held for timeout period
+                if (elapsed_ms >= SLEEP_TIMEOUT_MS) {
                     ESP_LOGI(TAG, "Entering light sleep mode");
+                    lcd_show_loading_bar(100);  // Show full progress
 
                     // Wait for button release before sleeping
                     while (gpio_get_level(SLEEP_PIN) == 0) {
                         vTaskDelay(pdMS_TO_TICKS(10));
                     }
+
+                    lcd_hide_loading_bar();  // Hide the loading bar before sleep
+                    lcd_reset_loading_bar();  // Reset the pointer
 
                     // Configure wakeup on button press (active low)
                     ESP_ERROR_CHECK(gpio_wakeup_enable(SLEEP_PIN, GPIO_INTR_LOW_LEVEL));
@@ -80,19 +93,21 @@ static void check_sleep_conditions(void *pvParameters)
 
                     // After wakeup, log and restart
                     ESP_LOGI(TAG, "Waking up from light sleep - performing restart");
-                    vTaskDelay(pdMS_TO_TICKS(100));  // Short delay to allow log message to be printed
+                    vTaskDelay(pdMS_TO_TICKS(100));
 
                     // Perform software reset
                     esp_restart();
-
-                    // Code after this point will not be executed due to restart
                 }
             }
         } else {
+            if (pin_was_low) {
+                lcd_hide_loading_bar();  // Hide the loading bar when button is released
+                lcd_reset_loading_bar();  // Reset the pointer
+            }
             pin_was_low = false;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(20));  // Back to original 20ms delay
     }
 }
 
