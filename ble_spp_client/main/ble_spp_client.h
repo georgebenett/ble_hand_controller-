@@ -1,6 +1,8 @@
 #ifndef SPP_CLIENT_DEMO_H
 #define SPP_CLIENT_DEMO_H
 
+extern bool is_connect;
+
 void spp_client_demo_init(void);
 float get_latest_voltage(void);
 int32_t get_latest_rpm(void);

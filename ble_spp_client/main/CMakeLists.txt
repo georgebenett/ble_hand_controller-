@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "main.c" "spp_client_demo.c" "adc.c" "lcd.c"
+    SRCS "ble_spp_client.c" "main.c" "adc.c" "lcd.c"
     INCLUDE_DIRS "."
     REQUIRES driver 
             nvs_flash 

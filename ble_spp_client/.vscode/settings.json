@@ -16,4 +16,6 @@
     "esp_lcd_panel_nt35510.h": "c",
     "esp_lcd_panel_st7789.h": "c"
   }
+  "files.trimTrailingWhitespace": true
+
 }

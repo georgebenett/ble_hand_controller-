@@ -88,8 +88,8 @@ static esp_ble_scan_params_t ble_scan_params = {
     .scan_duplicate         = BLE_SCAN_DUPLICATE_DISABLE
 };
 
+bool is_connect = false;
 static const char device_name[] = DEVICE_NAME;
-static bool is_connect = false;
 static uint16_t spp_conn_id = 0;
 static uint16_t spp_mtu_size = 23;
 static uint16_t cmd = 0;

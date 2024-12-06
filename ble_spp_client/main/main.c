@@ -12,6 +12,9 @@
 #define TAG "MAIN"
 #define SLEEP_PIN GPIO_NUM_4
 #define SLEEP_TIMEOUT_MS 2000
+#define INACTIVITY_TIMEOUT_MS 50000  // 50 seconds inactivity timeout
+
+extern bool is_connect;
 
 static lv_obj_t *adc_label = NULL;
 static char adc_str[32];
@@ -110,6 +113,25 @@ static void check_sleep_conditions(void *pvParameters)
     }
 }
 
+static void check_inactivity_sleep(void)
+{
+    // Get inactivity time from LVGL and adjust for tick rate
+    uint32_t inactivity_time = lv_disp_get_inactive_time(NULL) * portTICK_PERIOD_MS;
+
+    // Check if we should go to sleep (if inactive and not connected)
+    if (inactivity_time > INACTIVITY_TIMEOUT_MS && !is_connect) {
+        ESP_LOGI(TAG, "System inactive for %lu ms and no BLE connection. Entering deep sleep.",
+                 inactivity_time);
+
+        // Configure wakeup on button press (active low)
+        ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << SLEEP_PIN,
+                                                         ESP_GPIO_WAKEUP_GPIO_LOW));
+
+        // Enter deep sleep
+        esp_deep_sleep_start();
+    }
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Starting Application");
@@ -155,6 +177,7 @@ void app_main(void)
 
     // Main task can now sleep
     while (1) {
+        check_inactivity_sleep();
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
