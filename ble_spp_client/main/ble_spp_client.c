@@ -70,6 +70,7 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 static void esp_gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 static void adc_send_task(void *pvParameters);
+static void log_rssi_task(void *pvParameters);
 
 /* One gatt-based profile one app_id and one gattc_if, this array will store the gattc_if returned by ESP_GATTS_REG_EVT */
 static struct gattc_profile_inst gl_profile_tab[PROFILE_NUM] = {
@@ -121,6 +122,7 @@ static float latest_current_motor = 0.0f;
 static float latest_current_in = 0.0f;
 static float latest_amp_hours = 0.0f;
 static float latest_amp_hours_charged = 0.0f;
+static int connection_quality = 0;
 
 static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
 {
@@ -237,23 +239,12 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
         case ESP_GAP_SEARCH_INQ_RES_EVT:
             adv_name = esp_ble_resolve_adv_data(scan_result->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
 
-            // Only print logs if the device is "ble_hand_receiver"
-            if (adv_name != NULL && strncmp((char *)adv_name, "ble_hand_receiver", adv_name_len) == 0) {
-                esp_log_buffer_hex(GATTC_TAG, scan_result->scan_rst.bda, 6);
-                ESP_LOGI(GATTC_TAG, "Searched Adv Data Len %d, Scan Response Len %d",
-                    scan_result->scan_rst.adv_data_len,
-                    scan_result->scan_rst.scan_rsp_len);
-                ESP_LOGI(GATTC_TAG, "Searched Device Name Len %d", adv_name_len);
-                esp_log_buffer_char(GATTC_TAG, adv_name, adv_name_len);
-                ESP_LOGI(GATTC_TAG, " ");
-            }
-
-            // Keep the original connection logic unchanged
-            if (adv_name != NULL) {
-                if (strncmp((char *)adv_name, device_name, adv_name_len) == 0) {
-                    memcpy(&scan_rst, scan_result, sizeof(esp_ble_gap_cb_param_t));
-                    esp_ble_gap_stop_scanning();
-                }
+            // Only print logs if the device name matches
+            if (adv_name != NULL && strncmp((char *)adv_name, device_name, adv_name_len) == 0) {
+                ESP_LOGI(GATTC_TAG, "Found device %s, RSSI: %d",
+                        device_name, scan_result->scan_rst.rssi);
+                memcpy(&scan_rst, scan_result, sizeof(esp_ble_gap_cb_param_t));
+                esp_ble_gap_stop_scanning();
             }
             break;
         case ESP_GAP_SEARCH_INQ_CMPL_EVT:
@@ -268,6 +259,20 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
             ESP_LOGE(GATTC_TAG, "Adv stop failed: %s", esp_err_to_name(err));
         }else {
             ESP_LOGI(GATTC_TAG, "Stop adv successfully");
+        }
+        break;
+    case ESP_GAP_BLE_READ_RSSI_COMPLETE_EVT:
+        if (param->read_rssi_cmpl.status == ESP_BT_STATUS_SUCCESS) {
+            int rssi = param->read_rssi_cmpl.rssi;
+            connection_quality = ((rssi + 100) * 100) / 70;  // Normalize to percentage
+
+            // Clamp percentage between 0 and 100
+            if (connection_quality > 100) connection_quality = 100;
+            if (connection_quality < 0) connection_quality = 0;
+
+            //printf("Connection Quality: %d%% (RSSI: %d dBm)\n", connection_quality, rssi);
+        } else {
+            ESP_LOGE(GATTC_TAG, "RSSI read failed: %d", param->read_rssi_cmpl.status);
         }
         break;
     default:
@@ -640,6 +645,7 @@ void spp_client_demo_init(void)
     ble_client_appRegister();
     spp_uart_init();
     xTaskCreate(adc_send_task, "adc_send_task", 2048, NULL, 5, NULL);
+    xTaskCreate(log_rssi_task, "log_rssi_task", 2048, NULL, 5, NULL);
 }
 
 static void adc_send_task(void *pvParameters) {
@@ -698,4 +704,20 @@ float get_latest_amp_hours(void)
 float get_latest_amp_hours_charged(void)
 {
     return latest_amp_hours_charged;
+}
+
+static void log_rssi_task(void *pvParameters) {
+    while (1) {
+        if (is_connect && spp_gattc_if != 0xff) {
+            esp_err_t ret = esp_ble_gap_read_rssi(scan_rst.scan_rst.bda);
+            if (ret != ESP_OK) {
+                ESP_LOGE(GATTC_TAG, "Read RSSI failed: %s", esp_err_to_name(ret));
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Check RSSI every second
+    }
+}
+
+int get_connection_quality(void) {
+    return connection_quality;
 }

@@ -12,7 +12,7 @@
 #define TAG "MAIN"
 #define SLEEP_PIN GPIO_NUM_4
 #define SLEEP_TIMEOUT_MS 2000
-#define INACTIVITY_TIMEOUT_MS 50000  // 50 seconds inactivity timeout
+#define INACTIVITY_TIMEOUT_MS 80000  // 50 seconds inactivity timeout
 
 extern bool is_connect;
 
@@ -25,8 +25,10 @@ static void update_display_task(void *pvParameters) {
     while (1) {
         float voltage = get_latest_voltage();
         int32_t rpm = get_latest_rpm();
+        int quality = get_connection_quality();
 
-        snprintf(adc_str, sizeof(adc_str), "%.2fv\n%ld", voltage, rpm);
+        snprintf(adc_str, sizeof(adc_str), "%.2fv\n%ld\n%d%%",
+                voltage, rpm, quality);
 
         if (adc_label != NULL) {
             lv_label_set_text(adc_label, adc_str);
@@ -76,7 +78,7 @@ static void check_sleep_conditions(void *pvParameters)
 
                 // Check if button has been held for timeout period
                 if (elapsed_ms >= SLEEP_TIMEOUT_MS) {
-                    ESP_LOGI(TAG, "Entering light sleep mode");
+                    ESP_LOGI(TAG, "Entering deep sleep mode");
                     lcd_show_loading_bar(100);  // Show full progress
 
                     // Wait for button release before sleeping
@@ -94,7 +96,7 @@ static void check_sleep_conditions(void *pvParameters)
                     esp_deep_sleep_start();
 
                     // After wakeup, log and restart
-                    ESP_LOGI(TAG, "Waking up from light sleep - performing restart");
+                    ESP_LOGI(TAG, "Waking up from deep sleep - performing restart");
                     vTaskDelay(pdMS_TO_TICKS(100));
 
                     // Perform software reset
