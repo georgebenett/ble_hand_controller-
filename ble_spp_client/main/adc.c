@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "sleep.h"
+#include "ble_spp_client.h"
 
 static const char *TAG = "ADC";
 static adc_oneshot_unit_handle_t adc1_handle;
@@ -93,6 +95,9 @@ int32_t adc_read_value(void)
 }
 
 static void adc_task(void *pvParameters) {
+    uint32_t last_value = 0;
+    const uint32_t CHANGE_THRESHOLD = 2; // Adjust this threshold as needed
+
     while (1) {
         uint32_t adc_value = adc_read_value();
         if (adc_value == -1) {
@@ -112,6 +117,14 @@ static void adc_task(void *pvParameters) {
 
         uint8_t mapped_value = map_adc_value(adc_value);
         latest_adc_value = mapped_value;
+        if(!is_connect){
+            // Only monitor value changes and reset timer when BLE is not connected
+            if (abs((int32_t)mapped_value - (int32_t)last_value) > CHANGE_THRESHOLD) {
+                sleep_reset_inactivity_timer();
+                last_value = mapped_value;
+            }
+        }
+
         xQueueSend(adc_display_queue, &mapped_value, 0);
         vTaskDelay(pdMS_TO_TICKS(ADC_SAMPLING_TICKS));
     }

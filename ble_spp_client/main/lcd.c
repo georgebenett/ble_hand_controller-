@@ -126,7 +126,7 @@ static void lvgl_handler_task(void *pvParameters) {
 lv_obj_t* lcd_create_label(const char* initial_text) {
     lv_obj_t* label = lv_label_create(lv_scr_act());
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_48, 0);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_30, 0);
     lv_label_set_text(label, initial_text);
 
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), LV_PART_MAIN);
