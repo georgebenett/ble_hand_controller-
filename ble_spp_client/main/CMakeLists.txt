@@ -1,6 +1,5 @@
 idf_component_register(
     SRCS 
-                "menu.c" 
                 "button.c" 
                 "sleep.c" 
                 "ble_spp_client.c" 

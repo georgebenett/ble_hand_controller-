@@ -6,7 +6,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-static const char *TAG = "LCD";
 
 // Static variables
 static esp_lcd_panel_handle_t panel_handle = NULL;
@@ -14,9 +13,7 @@ static lv_color_t *buf1 = NULL;
 static lv_color_t *buf2 = NULL;
 static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
-lv_obj_t *loading_bar = NULL;
-static lv_obj_t* menu_container = NULL;
-static lv_obj_t* menu_list = NULL;
+
 
 // Function prototypes
 static void flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map);
@@ -103,6 +100,10 @@ void lcd_init(void) {
     esp_timer_handle_t periodic_timer;
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 5000));
+
+
+    // Start display tasks
+    lcd_start_tasks();
 }
 
 static void flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map) {
@@ -125,90 +126,6 @@ static void lvgl_handler_task(void *pvParameters) {
     }
 }
 
-lv_obj_t* lcd_create_label(const char* initial_text) {
-    lv_obj_t* label = lv_label_create(lv_scr_act());
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_30, 0);
-    lv_label_set_text(label, initial_text);
-
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_text_color(label, lv_color_white(), LV_PART_MAIN);
-
-    return label;
-}
-
 void lcd_start_tasks(void) {
     xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
-}
-
-void lcd_show_loading_bar(uint8_t percentage) {
-    if (loading_bar == NULL) {
-        // Create loading bar if it doesn't exist
-        loading_bar = lv_bar_create(lv_scr_act());
-        lv_obj_set_size(loading_bar, LV_HOR_RES_MAX - 20, 10);
-        lv_obj_align(loading_bar, LV_ALIGN_BOTTOM_MID, 0, -50);
-
-        // Set background style (track)
-        lv_obj_set_style_bg_color(loading_bar, lv_color_black(), LV_PART_MAIN);
-        lv_obj_set_style_bg_opa(loading_bar, LV_OPA_COVER, LV_PART_MAIN);
-
-        // Set indicator style (the moving part) to green
-        lv_obj_set_style_bg_color(loading_bar, lv_color_make(0, 255, 0), LV_PART_INDICATOR);
-        lv_obj_set_style_bg_opa(loading_bar, LV_OPA_COVER, LV_PART_INDICATOR);
-
-        // Add radius to make it rounded
-        lv_obj_set_style_radius(loading_bar, 3, LV_PART_MAIN);
-        lv_obj_set_style_radius(loading_bar, 3, LV_PART_INDICATOR);
-
-        // Set border color to match background
-        lv_obj_set_style_border_color(loading_bar, lv_color_black(), LV_PART_MAIN);
-        lv_obj_set_style_border_width(loading_bar, 0, LV_PART_MAIN);
-
-        lv_bar_set_range(loading_bar, 0, 100);
-    }
-
-    lv_bar_set_value(loading_bar, percentage, LV_ANIM_ON);
-}
-
-void lcd_hide_loading_bar(void) {
-    if (loading_bar != NULL) {
-        lv_obj_del(loading_bar);
-        loading_bar = NULL;
-    }
-}
-
-void lcd_reset_loading_bar(void) {
-    loading_bar = NULL;
-}
-
-void lcd_show_menu(void) {
-    if (menu_container != NULL) return;  // Menu already visible
-    
-    // Create a container for the menu
-    menu_container = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(menu_container, LV_HOR_RES_MAX, LV_VER_RES_MAX);
-    lv_obj_set_style_bg_color(menu_container, lv_color_black(), 0);
-    lv_obj_set_style_bg_opa(menu_container, LV_OPA_50, 0);
-    
-    // Create the list
-    menu_list = lv_list_create(menu_container);
-    lv_obj_set_size(menu_list, LV_HOR_RES_MAX - 40, LV_VER_RES_MAX - 40);
-    lv_obj_align(menu_list, LV_ALIGN_CENTER, 0, 0);
-    
-    // Add menu items
-    lv_list_add_text(menu_list, "Throttle Config");
-    lv_list_add_text(menu_list, "Skate Config");
-}
-
-void lcd_hide_menu(void) {
-    if (menu_container != NULL) {
-        lv_obj_del(menu_container);
-        menu_container = NULL;
-        menu_list = NULL;
-    }
-}
-
-bool lcd_is_menu_visible(void) {
-    return menu_container != NULL;
 }

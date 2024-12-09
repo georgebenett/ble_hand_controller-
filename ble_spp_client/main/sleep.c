@@ -14,15 +14,10 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
     switch(event) {
         case BUTTON_EVENT_PRESSED:
             // Show progress during press
-            if (user_data != NULL) {
-                uint8_t progress = (uint8_t)(uintptr_t)user_data;
-                lcd_show_loading_bar(progress);
-            }
             break;
 
         case BUTTON_EVENT_LONG_PRESS:
             ESP_LOGI(TAG, "Entering deep sleep mode");
-            lcd_show_loading_bar(100);
 
             // Configure wakeup on button press (active low)
             ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << MAIN_BUTTON_GPIO,
@@ -36,10 +31,7 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
             break;
 
         case BUTTON_EVENT_RELEASED:
-            lcd_hide_loading_bar();
-            lcd_reset_loading_bar();
             break;
-
         default:
             break;
     }

@@ -28,7 +28,6 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "adc.h"
-#include "menu.h"
 
 #define DEVICE_NAME                 "GS-THUMB"
 #define GATTC_TAG                   "GATTC_SPP_DEMO"
@@ -655,8 +654,7 @@ static void adc_send_task(void *pvParameters) {
     while (1) {
         if (is_connect && db != NULL &&
             ((db+SPP_IDX_SPP_DATA_RECV_VAL)->properties &
-             (ESP_GATT_CHAR_PROP_BIT_WRITE_NR | ESP_GATT_CHAR_PROP_BIT_WRITE)) &&
-            menu_get_state() == MENU_STATE_HIDDEN) { // Only send data if menu is hidden
+             (ESP_GATT_CHAR_PROP_BIT_WRITE_NR | ESP_GATT_CHAR_PROP_BIT_WRITE))){
 
             uint32_t adc_value = adc_get_latest_value();
 

@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include <string.h>
 #include <stdio.h>
-#include "menu.h"
+
 
 #define TAG "BUTTON"
 #define DEBOUNCE_TIME_MS 20
@@ -130,19 +130,9 @@ void button_event_handler(button_event_t event, void* user_data) {
             break;
 
         case BUTTON_EVENT_DOUBLE_PRESS:
-            if (menu_get_state() == MENU_STATE_HIDDEN) {
-                menu_show();  // Show main menu
-            } else if (menu_get_state() == MENU_STATE_MAIN && menu_get_selected_index() == 1) {
-                menu_select_item();  // Enter skate config if selected
-            } else if (menu_get_state() == MENU_STATE_SKATE && menu_get_selected_index() == 0) {
-                menu_select_item();  // Enter motor pulley if selected
-            }
             break;
 
         case BUTTON_EVENT_LONG_PRESS:
-            if (menu_get_state() != MENU_STATE_HIDDEN) {
-                menu_back();  // Exit current menu on long press
-            }
             break;
     }
 }
