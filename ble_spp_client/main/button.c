@@ -11,6 +11,7 @@
 #define TASK_STACK_SIZE 2048
 #define TASK_PRIORITY 3
 
+
 static button_config_t button_cfg;
 static button_state_t current_state = BUTTON_IDLE;
 static button_callback_t event_callback = NULL;
@@ -126,18 +127,22 @@ void button_event_handler(button_event_t event, void* user_data) {
             break;
 
         case BUTTON_EVENT_RELEASED:
-            if (menu_get_state() == MENU_STATE_MAIN) {
-                menu_back();  // Exit menu on single press
-            }
             break;
 
         case BUTTON_EVENT_DOUBLE_PRESS:
             if (menu_get_state() == MENU_STATE_HIDDEN) {
-                menu_show();  // Show menu on double press
+                menu_show();  // Show main menu
+            } else if (menu_get_state() == MENU_STATE_MAIN && menu_get_selected_index() == 1) {
+                menu_select_item();  // Enter skate config if selected
+            } else if (menu_get_state() == MENU_STATE_SKATE && menu_get_selected_index() == 0) {
+                menu_select_item();  // Enter motor pulley if selected
             }
             break;
 
         case BUTTON_EVENT_LONG_PRESS:
+            if (menu_get_state() != MENU_STATE_HIDDEN) {
+                menu_back();  // Exit current menu on long press
+            }
             break;
     }
 }
