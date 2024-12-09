@@ -136,7 +136,7 @@ static void create_motor_pulley_menu(void) {
     char value_str[8];
     snprintf(value_str, sizeof(value_str), "%d", motor_pulley_value);
     lv_obj_t* value_label = lv_list_add_text(menu_list, value_str);
-
+    
     // Style the value display
     lv_obj_set_style_text_font(value_label, &lv_font_montserrat_48, 0);
     lv_obj_set_style_text_color(value_label, lv_color_white(), 0);

@@ -17,6 +17,9 @@
     "esp_lcd_panel_st7789.h": "c",
     "adc.h": "c",
     "menu.h": "c",
-    "freertos.h": "c"
+    "freertos.h": "c",
+    "ui.h": "c",
+    "ui_helpers.h": "c",
+    "ui_events.h": "c"
   }
 }
