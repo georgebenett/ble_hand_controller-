@@ -15,6 +15,7 @@ static lv_color_t *buf1 = NULL;
 static lv_color_t *buf2 = NULL;
 static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
+static esp_timer_handle_t periodic_timer;
 
 
 // Function prototypes
@@ -51,7 +52,7 @@ void lcd_init(void) {
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = TFT_DC_PIN,
         .cs_gpio_num = TFT_CS_PIN,
-        .pclk_hz = 40 * 1000 * 1000,
+        .pclk_hz = 80 * 1000 * 1000,
         .spi_mode = 0,
         .trans_queue_depth = 10,
         .lcd_cmd_bits = 8,
@@ -80,30 +81,34 @@ void lcd_init(void) {
 
     lv_init();
 
-    // Allocate two buffers for double buffering
-    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    // Allocate two buffers for double buffering with 1/8 screen size
+    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/4) * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1 != NULL);
-    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/4) * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf2 != NULL);
 
     // Initialize with both buffers
-    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * 20);
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * (LV_VER_RES_MAX/4));
 
     lv_disp_drv_init(&disp_drv);
     disp_drv.flush_cb = flush_cb;
     disp_drv.draw_buf = &draw_buf;
     disp_drv.hor_res = LV_HOR_RES_MAX;
     disp_drv.ver_res = LV_VER_RES_MAX;
-    disp_drv.offset_y = -20;
+    disp_drv.full_refresh = 0;
+    disp_drv.offset_x = 0;
+    disp_drv.offset_y = 0;
     lv_disp_drv_register(&disp_drv);
+
+    // Clear the screen to black at initialization
+    //ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LV_HOR_RES_MAX, LV_VER_RES_MAX, NULL));
 
     const esp_timer_create_args_t periodic_timer_args = {
         .callback = &lv_tick_task,
         .name = "periodic_gui"
     };
-    esp_timer_handle_t periodic_timer;
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 2500));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 1000));
 
 
     // Start display tasks
@@ -121,7 +126,7 @@ static void lv_tick_task(void *arg) {
 }
 
 static void lvgl_handler_task(void *pvParameters) {
-    const TickType_t xFrequency = pdMS_TO_TICKS(16);
+    const TickType_t xFrequency = pdMS_TO_TICKS(10);
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     while (1) {
@@ -145,6 +150,7 @@ static void display_update_task(void *pvParameters) {
 }
 
 void lcd_start_tasks(void) {
-    xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
+    xTaskCreate(lvgl_handler_task, "lvgl_handler", 8192, NULL, 5, NULL);
     xTaskCreate(display_update_task, "display_update", 4096, NULL, 4, NULL);
 }
+
