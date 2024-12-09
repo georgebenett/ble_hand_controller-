@@ -5,6 +5,8 @@
 #include "esp_heap_caps.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "ui/ui.h"
+#include "adc.h"
 
 
 // Static variables
@@ -19,6 +21,7 @@ static lv_disp_drv_t disp_drv;
 static void flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map);
 static void lv_tick_task(void *arg);
 static void lvgl_handler_task(void *pvParameters);
+static void display_update_task(void *pvParameters);
 
 void lcd_init(void) {
     // Configure GPIO20 and GPIO9
@@ -126,6 +129,21 @@ static void lvgl_handler_task(void *pvParameters) {
     }
 }
 
+static void display_update_task(void *pvParameters) {
+    uint8_t adc_value;
+    QueueHandle_t adc_queue = adc_get_queue();
+    
+    while (1) {
+        if (xQueueReceive(adc_queue, &adc_value, portMAX_DELAY) == pdTRUE) {
+            // Update the label with new ADC value
+            if (ui_Label1 != NULL) {
+                lv_label_set_text_fmt(ui_Label1, "%d", adc_value);
+            }
+        }
+    }
+}
+
 void lcd_start_tasks(void) {
     xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
+    xTaskCreate(display_update_task, "display_update", 4096, NULL, 4, NULL);
 }

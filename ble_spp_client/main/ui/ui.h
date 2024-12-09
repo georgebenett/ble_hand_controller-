@@ -19,7 +19,6 @@ extern "C" {
 void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
 extern lv_obj_t * ui_Label1;
-extern lv_obj_t * ui_Arc1;
 // CUSTOM VARIABLES
 
 // EVENTS
