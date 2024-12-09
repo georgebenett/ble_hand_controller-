@@ -19,10 +19,18 @@ extern "C" {
 void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
 extern lv_obj_t * ui_Label1;
+extern lv_obj_t * ui_Image2;
+extern lv_obj_t * ui_Image3;
 // CUSTOM VARIABLES
 
 // EVENTS
 extern lv_obj_t * ui____initial_actions0;
+
+// IMAGES AND IMAGE SETS
+LV_IMG_DECLARE(ui_img_battery101_png);    // assets/battery101.png
+LV_IMG_DECLARE(ui_img_106406083);    // assets/icons8-bluetooth-24.png
+LV_IMG_DECLARE(ui_img_battery_100_png);    // assets/battery_100.png
+LV_IMG_DECLARE(ui_img_battery_0_png);    // assets/battery_0.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_bebas120);

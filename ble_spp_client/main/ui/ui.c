@@ -13,12 +13,17 @@
 void ui_Screen1_screen_init(void);
 lv_obj_t * ui_Screen1;
 lv_obj_t * ui_Label1;
+lv_obj_t * ui_Image2;
+lv_obj_t * ui_Image3;
 // CUSTOM VARIABLES
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
+const lv_img_dsc_t * ui_imgset_1710764198[1] = {&ui_img_106406083};
+const lv_img_dsc_t * ui_imgset_battery_[2] = {&ui_img_battery_100_png, &ui_img_battery_0_png};
+const lv_img_dsc_t * ui_imgset_battery[1] = {&ui_img_battery101_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
