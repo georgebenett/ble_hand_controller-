@@ -50,16 +50,15 @@ void sleep_init(void) {
     button_config_t config = {
         .gpio_num = MAIN_BUTTON_GPIO,
         .long_press_time_ms = SLEEP_TIMEOUT_MS,
-        .double_press_time_ms = 300,  // Not used for sleep but required
+        .double_press_time_ms = 300,
         .active_low = true
     };
 
     ESP_ERROR_CHECK(button_init(&config));
     button_register_callback(sleep_button_callback, NULL);
+    button_register_callback(button_event_handler, NULL);
 
-    // Enable wakeup capability (this is sleep-specific and doesn't configure the GPIO)
     ESP_ERROR_CHECK(esp_sleep_enable_gpio_wakeup());
-
     last_activity_time = xTaskGetTickCount();
 }
 

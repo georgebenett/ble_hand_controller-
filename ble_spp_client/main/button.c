@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include <string.h>
 #include <stdio.h>
+#include "menu.h"
 
 #define TAG "BUTTON"
 #define DEBOUNCE_TIME_MS 20
@@ -24,43 +25,27 @@ static void button_monitor_task(void* pvParameters) {
     bool button_pressed = false;
 
     while (1) {
-        // Read button state (with active_low consideration)
         bool current_reading = gpio_get_level(button_cfg.gpio_num);
         if (button_cfg.active_low) {
-            current_reading = !current_reading;  // Invert for active low
+            current_reading = !current_reading;
         }
 
         if (current_reading != last_reading) {
-            // Debounce
             vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_TIME_MS));
             current_reading = gpio_get_level(button_cfg.gpio_num);
             if (button_cfg.active_low) {
-                current_reading = !current_reading;  // Invert for active low
+                current_reading = !current_reading;
             }
         }
 
         if (current_reading && !button_pressed) {
-            // Button press detected
             press_start_time = xTaskGetTickCount();
             button_pressed = true;
             current_state = BUTTON_PRESSED;
-
             if (event_callback) {
                 event_callback(BUTTON_EVENT_PRESSED, callback_user_data);
             }
-        } else if (current_reading && button_pressed) {
-            // Button still pressed, check for long press progress
-            uint32_t press_duration = (xTaskGetTickCount() - press_start_time) * portTICK_PERIOD_MS;
-            if (press_duration < button_cfg.long_press_time_ms) {
-                // Calculate and send progress (0-100%)
-                uint8_t progress = (press_duration * 100) / button_cfg.long_press_time_ms;
-                if (event_callback) {
-                    // Use user_data to pass progress
-                    event_callback(BUTTON_EVENT_PRESSED, (void*)(uintptr_t)progress);
-                }
-            }
         } else if (!current_reading && button_pressed) {
-            // Button release detected
             button_pressed = false;
             uint32_t press_duration = (xTaskGetTickCount() - press_start_time) * portTICK_PERIOD_MS;
 
@@ -70,7 +55,6 @@ static void button_monitor_task(void* pvParameters) {
                     event_callback(BUTTON_EVENT_LONG_PRESS, callback_user_data);
                 }
             } else {
-                // Check for double press
                 TickType_t current_time = xTaskGetTickCount();
                 if (first_press_registered &&
                     (current_time - last_release_time) * portTICK_PERIOD_MS < button_cfg.double_press_time_ms) {
@@ -82,11 +66,10 @@ static void button_monitor_task(void* pvParameters) {
                 } else {
                     first_press_registered = true;
                     last_release_time = current_time;
+                    if (event_callback) {
+                        event_callback(BUTTON_EVENT_RELEASED, callback_user_data);
+                    }
                 }
-            }
-
-            if (event_callback) {
-                event_callback(BUTTON_EVENT_RELEASED, callback_user_data);
             }
             current_state = BUTTON_IDLE;
         }
@@ -135,4 +118,26 @@ uint32_t button_get_press_duration_ms(void) {
 void button_start_monitoring(void) {
     xTaskCreate(button_monitor_task, "button_monitor", TASK_STACK_SIZE,
                 NULL, TASK_PRIORITY, &button_task_handle);
+}
+
+void button_event_handler(button_event_t event, void* user_data) {
+    switch (event) {
+        case BUTTON_EVENT_PRESSED:
+            break;
+
+        case BUTTON_EVENT_RELEASED:
+            if (menu_get_state() == MENU_STATE_MAIN) {
+                menu_back();  // Exit menu on single press
+            }
+            break;
+
+        case BUTTON_EVENT_DOUBLE_PRESS:
+            if (menu_get_state() == MENU_STATE_HIDDEN) {
+                menu_show();  // Show menu on double press
+            }
+            break;
+
+        case BUTTON_EVENT_LONG_PRESS:
+            break;
+    }
 }

@@ -50,4 +50,7 @@ uint32_t button_get_press_duration_ms(void);
 // Start button monitoring task
 void button_start_monitoring(void);
 
+// Menu button event handler
+void button_event_handler(button_event_t event, void* user_data);
+
 #endif // BUTTON_H

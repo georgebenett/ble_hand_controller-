@@ -9,6 +9,8 @@
 #include "driver/gpio.h"
 #include "esp_sleep.h"
 #include "sleep.h"
+#include "menu.h"
+#include "button.h"
 
 #define TAG "MAIN"
 
@@ -26,6 +28,9 @@ static void update_display_task(void *pvParameters) {
         float voltage = get_latest_voltage();
         int32_t rpm = get_latest_rpm();
         int quality = get_connection_quality();
+        
+        uint8_t calibrated_adc = adc_get_latest_value();
+        menu_handle_navigation(calibrated_adc);
 
         snprintf(adc_str, sizeof(adc_str), "%.2fv\n%ld\n%d%%",
                 voltage, rpm, quality);

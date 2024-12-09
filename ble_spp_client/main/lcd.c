@@ -15,6 +15,8 @@ static lv_color_t *buf2 = NULL;
 static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
 lv_obj_t *loading_bar = NULL;
+static lv_obj_t* menu_container = NULL;
+static lv_obj_t* menu_list = NULL;
 
 // Function prototypes
 static void flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map);
@@ -178,4 +180,35 @@ void lcd_hide_loading_bar(void) {
 
 void lcd_reset_loading_bar(void) {
     loading_bar = NULL;
+}
+
+void lcd_show_menu(void) {
+    if (menu_container != NULL) return;  // Menu already visible
+    
+    // Create a container for the menu
+    menu_container = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(menu_container, LV_HOR_RES_MAX, LV_VER_RES_MAX);
+    lv_obj_set_style_bg_color(menu_container, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(menu_container, LV_OPA_50, 0);
+    
+    // Create the list
+    menu_list = lv_list_create(menu_container);
+    lv_obj_set_size(menu_list, LV_HOR_RES_MAX - 40, LV_VER_RES_MAX - 40);
+    lv_obj_align(menu_list, LV_ALIGN_CENTER, 0, 0);
+    
+    // Add menu items
+    lv_list_add_text(menu_list, "Throttle Config");
+    lv_list_add_text(menu_list, "Skate Config");
+}
+
+void lcd_hide_menu(void) {
+    if (menu_container != NULL) {
+        lv_obj_del(menu_container);
+        menu_container = NULL;
+        menu_list = NULL;
+    }
+}
+
+bool lcd_is_menu_visible(void) {
+    return menu_container != NULL;
 }
