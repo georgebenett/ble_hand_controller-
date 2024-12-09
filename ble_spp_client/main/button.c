@@ -88,6 +88,7 @@ esp_err_t button_init(const button_config_t* config) {
     // Store configuration
     memcpy(&button_cfg, config, sizeof(button_config_t));
 
+
     // Configure GPIO
     gpio_config_t io_conf = {
         .pin_bit_mask = (1ULL << config->gpio_num),
@@ -121,18 +122,22 @@ void button_start_monitoring(void) {
                 NULL, TASK_PRIORITY, &button_task_handle);
 }
 
-void button_event_handler(button_event_t event, void* user_data) {
-    switch (event) {
+void button_event_handler(button_event_t event) {
+    switch(event) {
         case BUTTON_EVENT_PRESSED:
+            ESP_LOGI("BUTTON", "Button pressed");
             break;
-
         case BUTTON_EVENT_RELEASED:
+            ESP_LOGI("BUTTON", "Button released");
             break;
-
-        case BUTTON_EVENT_DOUBLE_PRESS:
-            break;
-
         case BUTTON_EVENT_LONG_PRESS:
+            ESP_LOGI("BUTTON", "Long press detected");
+            break;
+        case BUTTON_EVENT_DOUBLE_PRESS:
+            ESP_LOGI("BUTTON", "Double press detected");
+            break;
+        default:
+            ESP_LOGI("BUTTON", "Unknown button event: %d", event);
             break;
     }
 }

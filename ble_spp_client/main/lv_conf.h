@@ -7,6 +7,10 @@
 #define LV_FONT_MONTSERRAT_28  1
 #define LV_FONT_MONTSERRAT_32  1
 #define LV_FONT_MONTSERRAT_48  1
+#define LV_USE_ANIMATION 0
+#define LV_USE_SHADOW 0
+#define LV_USE_BLEND_MODES 0
+#define LV_USE_LOG 0
 
 
 #endif

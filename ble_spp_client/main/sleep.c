@@ -11,32 +11,23 @@ static TickType_t last_reset_time = 0;
 #define RESET_DEBOUNCE_TIME_MS 2000
 
 static void sleep_button_callback(button_event_t event, void* user_data) {
+    // First log all button events
     switch(event) {
         case BUTTON_EVENT_PRESSED:
-            // Show progress during press
             ESP_LOGI(TAG, "Button pressed");
             break;
-
-        case BUTTON_EVENT_LONG_PRESS:
-            ESP_LOGI(TAG, "Long press detected - Entering deep sleep mode");
-
-            // Configure wakeup on button press (active low)
-            ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << MAIN_BUTTON_GPIO,
-                                                            ESP_GPIO_WAKEUP_GPIO_LOW));
-
-            // Small delay to ensure everything is stopped
-            vTaskDelay(pdMS_TO_TICKS(100));
-
-            // Enter deep sleep
-            esp_deep_sleep_start();
-            break;
-
         case BUTTON_EVENT_RELEASED:
             ESP_LOGI(TAG, "Button released");
             break;
-            
-        default:
-            ESP_LOGI(TAG, "Unknown button event: %d", event);
+        case BUTTON_EVENT_LONG_PRESS:
+            ESP_LOGI(TAG, "Long press detected - Entering deep sleep mode");
+            ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << MAIN_BUTTON_GPIO,
+                                                          ESP_GPIO_WAKEUP_GPIO_LOW));
+            vTaskDelay(pdMS_TO_TICKS(100));
+            esp_deep_sleep_start();
+            break;
+        case BUTTON_EVENT_DOUBLE_PRESS:
+            ESP_LOGI(TAG, "Double press detected");
             break;
     }
 }
@@ -51,7 +42,6 @@ void sleep_init(void) {
     };
 
     ESP_ERROR_CHECK(button_init(&config));
-    button_register_callback(sleep_button_callback, NULL);
 
     ESP_ERROR_CHECK(esp_sleep_enable_gpio_wakeup());
     last_activity_time = xTaskGetTickCount();

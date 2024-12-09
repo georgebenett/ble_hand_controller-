@@ -81,21 +81,22 @@ void lcd_init(void) {
 
     lv_init();
 
-    // Allocate two buffers for double buffering with 1/8 screen size
-    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/4) * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    // Allocate two buffers for double buffering with 1/X screen size
+    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/16) * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1 != NULL);
-    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/4) * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/16) * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf2 != NULL);
 
     // Initialize with both buffers
-    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * (LV_VER_RES_MAX/4));
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * (LV_VER_RES_MAX/16));
 
     lv_disp_drv_init(&disp_drv);
     disp_drv.flush_cb = flush_cb;
     disp_drv.draw_buf = &draw_buf;
     disp_drv.hor_res = LV_HOR_RES_MAX;
     disp_drv.ver_res = LV_VER_RES_MAX;
-    disp_drv.full_refresh = 0;
+    disp_drv.physical_hor_res = LV_HOR_RES_MAX;
+    disp_drv.physical_ver_res = LV_VER_RES_MAX;
     disp_drv.offset_x = 0;
     disp_drv.offset_y = 0;
     lv_disp_drv_register(&disp_drv);
@@ -150,7 +151,7 @@ static void display_update_task(void *pvParameters) {
 }
 
 void lcd_start_tasks(void) {
-    xTaskCreate(lvgl_handler_task, "lvgl_handler", 8192, NULL, 5, NULL);
-    xTaskCreate(display_update_task, "display_update", 4096, NULL, 4, NULL);
+    xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
+    xTaskCreate(display_update_task, "display_update", 2048, NULL, 4, NULL);
 }
 

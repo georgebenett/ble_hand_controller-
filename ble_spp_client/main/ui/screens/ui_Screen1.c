@@ -20,47 +20,14 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_align(ui_Label1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label1, &ui_font_bebas120, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Image2 = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Image2, &ui_img_battery101_png);
-    lv_obj_set_width(ui_Image2, LV_SIZE_CONTENT);   /// 48
-    lv_obj_set_height(ui_Image2, LV_SIZE_CONTENT);    /// 48
-    lv_obj_set_x(ui_Image2, 95);
-    lv_obj_set_y(ui_Image2, 0);
-    lv_obj_set_align(ui_Image2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_angle(ui_Image2, 900);
-
-    ui_Image3 = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Image3, &ui_img_battery101_png);
-    lv_obj_set_width(ui_Image3, LV_SIZE_CONTENT);   /// 48
-    lv_obj_set_height(ui_Image3, LV_SIZE_CONTENT);    /// 48
-    lv_obj_set_x(ui_Image3, -100);
-    lv_obj_set_y(ui_Image3, -4);
-    lv_obj_set_align(ui_Image3, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image3, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_angle(ui_Image3, 900);
-
-    ui_Image4 = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Image4, &ui_img_battery_100_png);
-    lv_obj_set_width(ui_Image4, LV_SIZE_CONTENT);   /// 48
-    lv_obj_set_height(ui_Image4, LV_SIZE_CONTENT);    /// 48
-    lv_obj_set_x(ui_Image4, -2);
-    lv_obj_set_y(ui_Image4, 136);
-    lv_obj_set_align(ui_Image4, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image4, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Image5 = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Image5, &ui_img_battery_0_png);
-    lv_obj_set_width(ui_Image5, LV_SIZE_CONTENT);   /// 48
-    lv_obj_set_height(ui_Image5, LV_SIZE_CONTENT);    /// 48
-    lv_obj_set_x(ui_Image5, 0);
-    lv_obj_set_y(ui_Image5, -137);
-    lv_obj_set_align(ui_Image5, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image5, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_Label2 = lv_label_create(ui_Screen1);
+    lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label2, 0);
+    lv_obj_set_y(ui_Label2, -70);
+    lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label2, "km/h");
+    lv_obj_set_style_text_font(ui_Label2, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
 }
