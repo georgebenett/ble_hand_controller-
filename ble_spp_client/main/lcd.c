@@ -94,6 +94,7 @@ void lcd_init(void) {
     disp_drv.draw_buf = &draw_buf;
     disp_drv.hor_res = LV_HOR_RES_MAX;
     disp_drv.ver_res = LV_VER_RES_MAX;
+    disp_drv.offset_y = -20;
     lv_disp_drv_register(&disp_drv);
 
     const esp_timer_create_args_t periodic_timer_args = {
