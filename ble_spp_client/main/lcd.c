@@ -44,14 +44,14 @@ void lcd_init(void) {
         .miso_io_num = -1,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = LV_HOR_RES_MAX * 20 * 2
+        .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
     };
     ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO));
 
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = TFT_DC_PIN,
         .cs_gpio_num = TFT_CS_PIN,
-        .pclk_hz = 10 * 1000 * 1000,
+        .pclk_hz = 40 * 1000 * 1000,
         .spi_mode = 0,
         .trans_queue_depth = 10,
         .lcd_cmd_bits = 8,
@@ -102,7 +102,7 @@ void lcd_init(void) {
     };
     esp_timer_handle_t periodic_timer;
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 5000));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 2500));
 
 
     // Start display tasks
@@ -120,7 +120,7 @@ static void lv_tick_task(void *arg) {
 }
 
 static void lvgl_handler_task(void *pvParameters) {
-    const TickType_t xFrequency = pdMS_TO_TICKS(20);
+    const TickType_t xFrequency = pdMS_TO_TICKS(16);
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     while (1) {
@@ -132,7 +132,7 @@ static void lvgl_handler_task(void *pvParameters) {
 static void display_update_task(void *pvParameters) {
     uint8_t adc_value;
     QueueHandle_t adc_queue = adc_get_queue();
-    
+
     while (1) {
         if (xQueueReceive(adc_queue, &adc_value, portMAX_DELAY) == pdTRUE) {
             // Update the label with new ADC value
