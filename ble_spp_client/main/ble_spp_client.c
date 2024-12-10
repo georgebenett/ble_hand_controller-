@@ -117,7 +117,7 @@ static esp_bt_uuid_t spp_service_uuid = {
 };
 
 static float latest_voltage = 0.0f;
-static int32_t latest_rpm = 0;
+static int32_t latest_erpm = 0;
 static float latest_current_motor = 0.0f;
 static float latest_current_in = 0.0f;
 static float latest_amp_hours = 0.0f;
@@ -148,7 +148,7 @@ static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
             latest_voltage = voltage_raw / 100.0f;
 
             // Decode RPM (next 4 bytes)
-            latest_rpm = (p_data->notify.value[2] << 24) |
+            latest_erpm = (p_data->notify.value[2] << 24) |
                         (p_data->notify.value[3] << 16) |
                         (p_data->notify.value[4] << 8) |
                         p_data->notify.value[5];
@@ -170,7 +170,7 @@ static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
             latest_amp_hours_charged = amp_hours_charged_raw / 100.0f;
 
             ESP_LOGI(GATTC_TAG, "Received: V=%.2fV, RPM=%ld, Motor=%.2fA, In=%.2fA, AH=%.2f, AHC=%.2f",
-                    latest_voltage, latest_rpm, latest_current_motor, latest_current_in,
+                    latest_voltage, latest_erpm, latest_current_motor, latest_current_in,
                     latest_amp_hours, latest_amp_hours_charged);
         } else {
             ESP_LOGW(GATTC_TAG, "Unexpected data length: %d", p_data->notify.value_len);
@@ -681,9 +681,9 @@ float get_latest_voltage(void)
     return latest_voltage;
 }
 
-int32_t get_latest_rpm(void)
+int32_t get_latest_erpm(void)
 {
-    return latest_rpm;
+    return latest_erpm;
 }
 
 float get_latest_current_motor(void)

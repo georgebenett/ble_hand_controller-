@@ -10,6 +10,7 @@ idf_component_register(
         "main.c"
         "adc.c"
         "lcd.c"
+        "vesc_config.c"
         ${UI_SOURCES}
     INCLUDE_DIRS
         "."
