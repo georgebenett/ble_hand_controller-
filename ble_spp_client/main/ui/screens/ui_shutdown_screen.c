@@ -10,30 +10,24 @@ void ui_shutdown_screen_screen_init(void)
     ui_shutdown_screen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_shutdown_screen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Arc1 = lv_arc_create(ui_shutdown_screen);
-    lv_obj_set_width(ui_Arc1, 150);
-    lv_obj_set_height(ui_Arc1, 150);
-    lv_obj_set_x(ui_Arc1, 0);
-    lv_obj_set_y(ui_Arc1, 30);
-    lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
-    lv_arc_set_value(ui_Arc1, 0);
-    lv_arc_set_bg_angles(ui_Arc1, 0, 360);
-    lv_arc_set_rotation(ui_Arc1, 90);
-
-    lv_obj_set_style_arc_color(ui_Arc1, lv_color_hex(0xE03232), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_Arc1, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_blend_mode(ui_Arc1, LV_BLEND_MODE_NORMAL, LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_opa(ui_Arc1, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-
     ui_shutdown = lv_label_create(ui_shutdown_screen);
     lv_obj_set_width(ui_shutdown, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_shutdown, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_shutdown, 0);
-    lv_obj_set_y(ui_shutdown, -80);
+    lv_obj_set_y(ui_shutdown, -50);
     lv_obj_set_align(ui_shutdown, LV_ALIGN_CENTER);
     lv_label_set_text(ui_shutdown, "SHUTDOWN");
     lv_obj_set_style_text_font(ui_shutdown, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Bar4 = lv_bar_create(ui_shutdown_screen);
+    lv_bar_set_value(ui_Bar4, 50, LV_ANIM_OFF);
+    lv_bar_set_start_value(ui_Bar4, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_Bar4, 180);
+    lv_obj_set_height(ui_Bar4, 10);
+    lv_obj_set_align(ui_Bar4, LV_ALIGN_CENTER);
+
+    lv_obj_set_style_bg_color(ui_Bar4, lv_color_hex(0xFFFFFF), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Bar4, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
 
 }

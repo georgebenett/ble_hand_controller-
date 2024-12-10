@@ -29,5 +29,24 @@ void ui_home_screen_screen_init(void)
     lv_label_set_text(ui_Label2, "km/h");
     lv_obj_set_style_text_font(ui_Label2, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Bar2 = lv_bar_create(ui_home_screen);
+    lv_bar_set_value(ui_Bar2, 25, LV_ANIM_OFF);
+    lv_bar_set_start_value(ui_Bar2, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_Bar2, 150);
+    lv_obj_set_height(ui_Bar2, 10);
+    lv_obj_set_x(ui_Bar2, 275);
+    lv_obj_set_y(ui_Bar2, 131);
+    lv_obj_set_align(ui_Bar2, LV_ALIGN_CENTER);
+
+    ui_Bar3 = lv_bar_create(ui_home_screen);
+    lv_bar_set_value(ui_Bar3, 25, LV_ANIM_OFF);
+    lv_bar_set_start_value(ui_Bar3, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_Bar3, 150);
+    lv_obj_set_height(ui_Bar3, 10);
+    lv_obj_set_x(ui_Bar3, 278);
+    lv_obj_set_y(ui_Bar3, 70);
+    lv_obj_set_align(ui_Bar3, LV_ALIGN_CENTER);
+
+
 
 }

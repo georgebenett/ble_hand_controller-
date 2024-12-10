@@ -61,6 +61,7 @@ void button_unregister_callback(button_callback_t callback) {
 static void button_monitor_task(void* pvParameters) {
     bool last_reading = !button_cfg.active_low;
     bool button_pressed = false;
+    bool long_press_sent = false;
 
     while (1) {
         bool current_reading = gpio_get_level(button_cfg.gpio_num);
@@ -79,16 +80,20 @@ static void button_monitor_task(void* pvParameters) {
         if (current_reading && !button_pressed) {
             press_start_time = xTaskGetTickCount();
             button_pressed = true;
+            long_press_sent = false;
             current_state = BUTTON_PRESSED;
             notify_callbacks(BUTTON_EVENT_PRESSED);
+        } else if (current_reading && button_pressed) {
+            // Check for long press while button is held
+            uint32_t press_duration = (xTaskGetTickCount() - press_start_time) * portTICK_PERIOD_MS;
+            if (!long_press_sent && press_duration >= button_cfg.long_press_time_ms) {
+                current_state = BUTTON_LONG_PRESS;
+                long_press_sent = true;
+                notify_callbacks(BUTTON_EVENT_LONG_PRESS);
+            }
         } else if (!current_reading && button_pressed) {
             button_pressed = false;
-            uint32_t press_duration = (xTaskGetTickCount() - press_start_time) * portTICK_PERIOD_MS;
-
-            if (press_duration >= button_cfg.long_press_time_ms) {
-                current_state = BUTTON_LONG_PRESS;
-                notify_callbacks(BUTTON_EVENT_LONG_PRESS);
-            } else {
+            if (!long_press_sent) {
                 TickType_t current_time = xTaskGetTickCount();
                 if (first_press_registered &&
                     (current_time - last_release_time) * portTICK_PERIOD_MS < button_cfg.double_press_time_ms) {
@@ -98,9 +103,9 @@ static void button_monitor_task(void* pvParameters) {
                 } else {
                     first_press_registered = true;
                     last_release_time = current_time;
-                    notify_callbacks(BUTTON_EVENT_RELEASED);
                 }
             }
+            notify_callbacks(BUTTON_EVENT_RELEASED);
             current_state = BUTTON_IDLE;
         }
 

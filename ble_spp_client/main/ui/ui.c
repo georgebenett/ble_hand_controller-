@@ -14,14 +14,16 @@ void ui_home_screen_screen_init(void);
 lv_obj_t * ui_home_screen;
 lv_obj_t * ui_Label1;
 lv_obj_t * ui_Label2;
+lv_obj_t * ui_Bar2;
+lv_obj_t * ui_Bar3;
 // CUSTOM VARIABLES
 
 
 // SCREEN: ui_shutdown_screen
 void ui_shutdown_screen_screen_init(void);
 lv_obj_t * ui_shutdown_screen;
-lv_obj_t * ui_Arc1;
 lv_obj_t * ui_shutdown;
+lv_obj_t * ui_Bar4;
 // CUSTOM VARIABLES
 
 // EVENTS

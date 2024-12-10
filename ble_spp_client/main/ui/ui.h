@@ -20,13 +20,15 @@ void ui_home_screen_screen_init(void);
 extern lv_obj_t * ui_home_screen;
 extern lv_obj_t * ui_Label1;
 extern lv_obj_t * ui_Label2;
+extern lv_obj_t * ui_Bar2;
+extern lv_obj_t * ui_Bar3;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_shutdown_screen
 void ui_shutdown_screen_screen_init(void);
 extern lv_obj_t * ui_shutdown_screen;
-extern lv_obj_t * ui_Arc1;
 extern lv_obj_t * ui_shutdown;
+extern lv_obj_t * ui_Bar4;
 // CUSTOM VARIABLES
 
 // EVENTS

@@ -16,14 +16,13 @@ static TickType_t last_reset_time = 0;
 static lv_anim_t arc_anim;
 static bool arc_animation_active = false;
 
-static void set_arc_value(void * obj, int32_t v)
+static void set_bar_value(void * obj, int32_t v)
 {
-    lv_arc_set_value(obj, v);
+    lv_bar_set_value(obj, v, LV_ANIM_OFF);
     
     // If we reach 100%, trigger sleep immediately
     if (v >= 100) {
-        ESP_LOGI(TAG, "Arc filled - Entering deep sleep mode");
-        // Configure wakeup on button press (transition from HIGH to LOW)
+        ESP_LOGI(TAG, "Bar filled - Entering deep sleep mode");
         ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << MAIN_BUTTON_GPIO,
                                                       ESP_GPIO_WAKEUP_GPIO_LOW));
         vTaskDelay(pdMS_TO_TICKS(2000));
@@ -32,40 +31,46 @@ static void set_arc_value(void * obj, int32_t v)
 }
 
 static void sleep_button_callback(button_event_t event, void* user_data) {
+    static bool long_press_triggered = false;
+
     switch(event) {
         case BUTTON_EVENT_PRESSED:
-            // Switch to shutdown screen
-            lv_disp_load_scr(ui_shutdown_screen);
-            
-            // Start arc animation
-            lv_anim_init(&arc_anim);
-            lv_anim_set_var(&arc_anim, ui_Arc1);
-            lv_anim_set_exec_cb(&arc_anim, set_arc_value);
-            lv_anim_set_time(&arc_anim, 2000);  // 2 seconds to fill
-            lv_anim_set_values(&arc_anim, 0, 100);
-            lv_anim_start(&arc_anim);
-            arc_animation_active = true;
+            long_press_triggered = false;
             break;
 
         case BUTTON_EVENT_RELEASED:
             if (arc_animation_active) {
                 // If released before full, cancel sleep
-                lv_anim_del(ui_Arc1, set_arc_value);
-                lv_arc_set_value(ui_Arc1, 0);
+                lv_anim_del(ui_Bar4, set_bar_value);
+                lv_bar_set_value(ui_Bar4, 0, LV_ANIM_OFF);
                 arc_animation_active = false;
                 lv_disp_load_scr(ui_home_screen);
             }
+            long_press_triggered = false;
             break;
 
         case BUTTON_EVENT_LONG_PRESS:
-            // Do nothing - we're handling sleep through the arc animation
+            if (!long_press_triggered) {
+                long_press_triggered = true;
+                // Switch to shutdown screen
+                lv_disp_load_scr(ui_shutdown_screen);
+                
+                // Start bar animation
+                lv_anim_init(&arc_anim);
+                lv_anim_set_var(&arc_anim, ui_Bar4);
+                lv_anim_set_exec_cb(&arc_anim, set_bar_value);
+                lv_anim_set_time(&arc_anim, 2000);  // 2 seconds to fill
+                lv_anim_set_values(&arc_anim, 0, 100);
+                lv_anim_start(&arc_anim);
+                arc_animation_active = true;
+            }
             break;
 
         case BUTTON_EVENT_DOUBLE_PRESS:
             // Cancel any ongoing sleep animation and return to home screen
             if (arc_animation_active) {
-                lv_anim_del(ui_Arc1, set_arc_value);
-                lv_arc_set_value(ui_Arc1, 0);
+                lv_anim_del(ui_Bar4, set_bar_value);
+                lv_bar_set_value(ui_Bar4, 0, LV_ANIM_OFF);
                 arc_animation_active = false;
                 lv_disp_load_scr(ui_home_screen);
             }
