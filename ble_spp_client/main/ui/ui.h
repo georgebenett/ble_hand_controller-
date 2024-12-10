@@ -43,6 +43,7 @@ LV_IMG_DECLARE(ui_img_battery_0_png);    // assets/battery_0.png
 // FONTS
 LV_FONT_DECLARE(ui_font_bebas120);
 LV_FONT_DECLARE(ui_font_bebas_small);
+LV_FONT_DECLARE(ui_font_bebas_medium);
 
 // UI INIT
 void ui_init(void);

@@ -67,13 +67,6 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
             break;
 
         case BUTTON_EVENT_DOUBLE_PRESS:
-            // Cancel any ongoing sleep animation and return to home screen
-            if (arc_animation_active) {
-                lv_anim_del(ui_Bar4, set_bar_value);
-                lv_bar_set_value(ui_Bar4, 0, LV_ANIM_OFF);
-                arc_animation_active = false;
-                lv_disp_load_scr(ui_home_screen);
-            }
             break;
     }
 }

@@ -158,15 +158,15 @@ void button_start_monitoring(void) {
 static void default_button_handler(button_event_t event, void* user_data) {
     switch(event) {
         case BUTTON_EVENT_PRESSED:
-            ESP_LOGI(TAG, "Button pressed");
+            //ESP_LOGI(TAG, "Button pressed");
             break;
         case BUTTON_EVENT_RELEASED:
             break;
         case BUTTON_EVENT_LONG_PRESS:
-            ESP_LOGI(TAG, "Long press detected");
+            //ESP_LOGI(TAG, "Long press detected");
             break;
         case BUTTON_EVENT_DOUBLE_PRESS:
-            ESP_LOGI(TAG, "Double press detected");
+            //ESP_LOGI(TAG, "Double press detected");
             break;
     }
 }

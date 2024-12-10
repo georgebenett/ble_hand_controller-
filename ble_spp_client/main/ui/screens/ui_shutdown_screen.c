@@ -14,16 +14,18 @@ void ui_shutdown_screen_screen_init(void)
     lv_obj_set_width(ui_shutdown, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_shutdown, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_shutdown, 0);
-    lv_obj_set_y(ui_shutdown, -50);
+    lv_obj_set_y(ui_shutdown, -20);
     lv_obj_set_align(ui_shutdown, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_shutdown, "SHUTDOWN");
-    lv_obj_set_style_text_font(ui_shutdown, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_shutdown, "turning off");
+    lv_obj_set_style_text_font(ui_shutdown, &ui_font_bebas_medium, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Bar4 = lv_bar_create(ui_shutdown_screen);
     lv_bar_set_value(ui_Bar4, 50, LV_ANIM_OFF);
     lv_bar_set_start_value(ui_Bar4, 0, LV_ANIM_OFF);
     lv_obj_set_width(ui_Bar4, 180);
     lv_obj_set_height(ui_Bar4, 10);
+    lv_obj_set_x(ui_Bar4, 0);
+    lv_obj_set_y(ui_Bar4, 50);
     lv_obj_set_align(ui_Bar4, LV_ALIGN_CENTER);
 
     lv_obj_set_style_bg_color(ui_Bar4, lv_color_hex(0xFFFFFF), LV_PART_INDICATOR | LV_STATE_DEFAULT);

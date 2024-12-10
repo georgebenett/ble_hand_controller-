@@ -8,6 +8,7 @@ SET(SOURCES screens/ui_home_screen.c
     images/ui_img_battery101_png.c
     images/ui_img_battery_0_png.c
     fonts/ui_font_bebas120.c
-    fonts/ui_font_bebas_small.c)
+    fonts/ui_font_bebas_small.c
+    fonts/ui_font_bebas_medium.c)
 
 add_library(ui ${SOURCES})
