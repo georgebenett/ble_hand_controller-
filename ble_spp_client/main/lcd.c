@@ -7,6 +7,7 @@
 #include "freertos/task.h"
 #include "ui/ui.h"
 #include "adc.h"
+#include "ble_spp_client.h"
 
 
 // Static variables
@@ -137,16 +138,16 @@ static void lvgl_handler_task(void *pvParameters) {
 }
 
 static void display_update_task(void *pvParameters) {
-    uint8_t adc_value;
-    QueueHandle_t adc_queue = adc_get_queue();
-
     while (1) {
-        if (xQueueReceive(adc_queue, &adc_value, portMAX_DELAY) == pdTRUE) {
-            // Update the label with new ADC value
-            if (ui_Label1 != NULL) {
-                lv_label_set_text_fmt(ui_Label1, "%d", adc_value);
-            }
+        // Get latest RPM from BLE service
+        int32_t rpm = get_latest_rpm();
+        
+        // Update the label with RPM value
+        if (ui_Label1 != NULL) {
+            lv_label_set_text_fmt(ui_Label1, "%ld", rpm/1400); //TODO: remove magic number
         }
+        
+        vTaskDelay(pdMS_TO_TICKS(100)); // Update every 100ms
     }
 }
 

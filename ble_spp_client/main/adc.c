@@ -160,10 +160,6 @@ void adc_start_task(void) {
     xTaskCreate(adc_task, "adc_task", 4096, NULL, 5, NULL);
 }
 
-QueueHandle_t adc_get_queue(void)
-{
-    return adc_display_queue;
-}
 
 // Add this function to get the latest ADC value
 uint32_t adc_get_latest_value(void) {

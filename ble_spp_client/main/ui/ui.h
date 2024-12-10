@@ -15,11 +15,18 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
-// SCREEN: ui_Screen1
-void ui_Screen1_screen_init(void);
-extern lv_obj_t * ui_Screen1;
+// SCREEN: ui_home_screen
+void ui_home_screen_screen_init(void);
+extern lv_obj_t * ui_home_screen;
 extern lv_obj_t * ui_Label1;
 extern lv_obj_t * ui_Label2;
+// CUSTOM VARIABLES
+
+// SCREEN: ui_shutdown_screen
+void ui_shutdown_screen_screen_init(void);
+extern lv_obj_t * ui_shutdown_screen;
+extern lv_obj_t * ui_Arc1;
+extern lv_obj_t * ui_shutdown;
 // CUSTOM VARIABLES
 
 // EVENTS

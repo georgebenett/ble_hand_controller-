@@ -5,12 +5,12 @@
 
 #include "../ui.h"
 
-void ui_Screen1_screen_init(void)
+void ui_home_screen_screen_init(void)
 {
-    ui_Screen1 = lv_obj_create(NULL);
-    lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_home_screen = lv_obj_create(NULL);
+    lv_obj_clear_flag(ui_home_screen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label1 = lv_label_create(ui_Screen1);
+    ui_Label1 = lv_label_create(ui_home_screen);
     lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
@@ -20,11 +20,11 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_align(ui_Label1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label1, &ui_font_bebas120, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label2 = lv_label_create(ui_Screen1);
+    ui_Label2 = lv_label_create(ui_home_screen);
     lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Label2, 0);
-    lv_obj_set_y(ui_Label2, -70);
+    lv_obj_set_y(ui_Label2, 70);
     lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label2, "km/h");
     lv_obj_set_style_text_font(ui_Label2, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);

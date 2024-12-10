@@ -50,4 +50,7 @@ uint32_t button_get_press_duration_ms(void);
 // Start button monitoring task
 void button_start_monitoring(void);
 
+// Add after other function declarations
+void switch_to_screen2_callback(button_event_t event, void* user_data);
+
 #endif // BUTTON_H

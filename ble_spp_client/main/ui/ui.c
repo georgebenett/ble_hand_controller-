@@ -9,11 +9,19 @@
 ///////////////////// VARIABLES ////////////////////
 
 
-// SCREEN: ui_Screen1
-void ui_Screen1_screen_init(void);
-lv_obj_t * ui_Screen1;
+// SCREEN: ui_home_screen
+void ui_home_screen_screen_init(void);
+lv_obj_t * ui_home_screen;
 lv_obj_t * ui_Label1;
 lv_obj_t * ui_Label2;
+// CUSTOM VARIABLES
+
+
+// SCREEN: ui_shutdown_screen
+void ui_shutdown_screen_screen_init(void);
+lv_obj_t * ui_shutdown_screen;
+lv_obj_t * ui_Arc1;
+lv_obj_t * ui_shutdown;
 // CUSTOM VARIABLES
 
 // EVENTS
@@ -44,7 +52,8 @@ void ui_init(void)
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
-    ui_Screen1_screen_init();
+    ui_home_screen_screen_init();
+    ui_shutdown_screen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
-    lv_disp_load_scr(ui_Screen1);
+    lv_disp_load_scr(ui_home_screen);
 }

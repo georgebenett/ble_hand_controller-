@@ -33,7 +33,6 @@
 esp_err_t adc_init(void);
 int32_t adc_read_value(void);
 void adc_start_task(void);
-QueueHandle_t adc_get_queue(void);
 uint32_t adc_get_latest_value(void);
 uint8_t map_adc_value(uint32_t adc_value);
 void adc_calibrate(void);

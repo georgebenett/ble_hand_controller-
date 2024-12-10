@@ -2,8 +2,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_sleep.h"
 #include <string.h>
 #include <stdio.h>
+#include "ui/ui.h"
+#include "lvgl.h"
 
 #define TAG "BUTTON"
 #define DEBOUNCE_TIME_MS 20
@@ -160,5 +163,12 @@ static void default_button_handler(button_event_t event, void* user_data) {
         case BUTTON_EVENT_DOUBLE_PRESS:
             ESP_LOGI(TAG, "Double press detected");
             break;
+    }
+}
+
+void switch_to_screen2_callback(button_event_t event, void* user_data) {
+    if (event == BUTTON_EVENT_LONG_PRESS) {
+        // Switch to Screen2
+        lv_disp_load_scr(ui_shutdown_screen);
     }
 }
