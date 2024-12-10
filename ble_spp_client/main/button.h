@@ -8,6 +8,10 @@
 // Button GPIO definitions
 #define MAIN_BUTTON_GPIO GPIO_NUM_4
 
+// Button timing definitions
+#define BUTTON_LONG_PRESS_TIME_MS 500
+#define BUTTON_DOUBLE_PRESS_TIME_MS 300
+
 // Button states
 typedef enum {
     BUTTON_IDLE,

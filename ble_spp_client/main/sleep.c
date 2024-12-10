@@ -81,8 +81,8 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
 void sleep_init(void) {
     button_config_t config = {
         .gpio_num = MAIN_BUTTON_GPIO,
-        .long_press_time_ms = SLEEP_TIMEOUT_MS,
-        .double_press_time_ms = 300,
+        .long_press_time_ms = BUTTON_LONG_PRESS_TIME_MS,
+        .double_press_time_ms = BUTTON_DOUBLE_PRESS_TIME_MS,
         .active_low = true
     };
 
