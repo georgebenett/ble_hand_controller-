@@ -26,6 +26,24 @@ lv_obj_t * ui_shutdown;
 lv_obj_t * ui_Bar4;
 // CUSTOM VARIABLES
 
+
+// SCREEN: ui_detailed_home
+void ui_detailed_home_screen_init(void);
+lv_obj_t * ui_detailed_home;
+lv_obj_t * ui_vesc_voltage;
+lv_obj_t * ui_vesc_motor_current;
+lv_obj_t * ui_battery_current;
+lv_obj_t * ui_vesc_consumption;
+// CUSTOM VARIABLES
+
+
+// SCREEN: ui_splash_screen
+void ui_splash_screen_screen_init(void);
+lv_obj_t * ui_splash_screen;
+lv_obj_t * ui_Image2;
+lv_obj_t * ui_Image3;
+// CUSTOM VARIABLES
+
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
@@ -56,6 +74,8 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_home_screen_screen_init();
     ui_shutdown_screen_screen_init();
+    ui_detailed_home_screen_init();
+    ui_splash_screen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_home_screen);
 }

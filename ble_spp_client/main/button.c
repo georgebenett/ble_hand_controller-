@@ -27,6 +27,7 @@ static TickType_t last_release_time = 0;
 static bool first_press_registered = false;
 static TaskHandle_t button_task_handle = NULL;
 static button_callback_entry_t callbacks[MAX_CALLBACKS] = {0};
+static bool is_detailed_view = false;
 static void default_button_handler(button_event_t event, void* user_data);
 
 static void notify_callbacks(button_event_t event) {
@@ -158,15 +159,20 @@ void button_start_monitoring(void) {
 static void default_button_handler(button_event_t event, void* user_data) {
     switch(event) {
         case BUTTON_EVENT_PRESSED:
-            //ESP_LOGI(TAG, "Button pressed");
             break;
         case BUTTON_EVENT_RELEASED:
             break;
         case BUTTON_EVENT_LONG_PRESS:
-            //ESP_LOGI(TAG, "Long press detected");
+            lv_disp_load_scr(ui_shutdown_screen);
             break;
         case BUTTON_EVENT_DOUBLE_PRESS:
-            //ESP_LOGI(TAG, "Double press detected");
+            if (is_detailed_view) {
+                lv_disp_load_scr(ui_home_screen);
+                is_detailed_view = false;
+            } else {
+                lv_disp_load_scr(ui_detailed_home);
+                is_detailed_view = true;
+            }
             break;
     }
 }

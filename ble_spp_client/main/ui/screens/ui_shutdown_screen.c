@@ -9,6 +9,8 @@ void ui_shutdown_screen_screen_init(void)
 {
     ui_shutdown_screen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_shutdown_screen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_shutdown_screen, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_shutdown_screen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_shutdown = lv_label_create(ui_shutdown_screen);
     lv_obj_set_width(ui_shutdown, LV_SIZE_CONTENT);   /// 1

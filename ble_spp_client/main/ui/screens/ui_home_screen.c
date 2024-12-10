@@ -9,6 +9,8 @@ void ui_home_screen_screen_init(void)
 {
     ui_home_screen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_home_screen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_home_screen, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_home_screen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label1 = lv_label_create(ui_home_screen);
     lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1

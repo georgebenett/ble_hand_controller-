@@ -18,6 +18,11 @@
 
 extern bool is_connect;
 
+static void splash_timer_cb(lv_timer_t * timer)
+{
+    lv_disp_load_scr(ui_home_screen);  // Switch to home screen after timeout
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Starting Application");
@@ -58,6 +63,9 @@ void app_main(void)
 
     // Initialize SquareLine Studio UI
     ui_init();
+    lv_disp_load_scr(ui_splash_screen);  // Load splash screen first
+    lv_timer_t * splash_timer = lv_timer_create(splash_timer_cb, 1000, NULL);  // Create timer for 1 seconds
+    lv_timer_set_repeat_count(splash_timer, 1);  // Run only once
 
     // Main task can now sleep
     while (1) {
