@@ -22,6 +22,10 @@ extern lv_obj_t * ui_Label1;
 extern lv_obj_t * ui_Label2;
 extern lv_obj_t * ui_Bar2;
 extern lv_obj_t * ui_Bar3;
+extern lv_obj_t * ui_Image4;
+extern lv_obj_t * ui_Label4;
+extern lv_obj_t * ui_Image5;
+extern lv_obj_t * ui_Label5;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_shutdown_screen
@@ -52,12 +56,10 @@ extern lv_obj_t * ui_Image3;
 extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_38597039);    // assets/Design sem nome (1).png
+LV_IMG_DECLARE(ui_img_2113635023);    // assets/icons8-empty-battery-50.png
+LV_IMG_DECLARE(ui_img_177279753);    // assets/icons8-no-connection-48.png
 LV_IMG_DECLARE(ui_img_gb_png);    // assets/GB.png
-LV_IMG_DECLARE(ui_img_battery101_png);    // assets/battery101.png
-LV_IMG_DECLARE(ui_img_battery_0_png);    // assets/battery_0.png
-LV_IMG_DECLARE(ui_img_battery_100_png);    // assets/battery_100.png
-LV_IMG_DECLARE(ui_img_106406083);    // assets/icons8-bluetooth-24.png
+LV_IMG_DECLARE(ui_img_480528337);    // assets/icons8-charging-battery-50.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_bebas120);
@@ -65,6 +67,7 @@ LV_FONT_DECLARE(ui_font_bebas25);
 LV_FONT_DECLARE(ui_font_bebas30);
 LV_FONT_DECLARE(ui_font_bebas_medium);
 LV_FONT_DECLARE(ui_font_bebas_small);
+LV_FONT_DECLARE(ui_font_bebas_14);
 
 // UI INIT
 void ui_init(void);

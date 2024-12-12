@@ -22,6 +22,7 @@
     "ui_helpers.h": "c",
     "ui_events.h": "c",
     "button.h": "c",
-    "esp_sleep.h": "c"
+    "esp_sleep.h": "c",
+    "esp_log.h": "c"
   }
 }

@@ -160,6 +160,6 @@ static void display_update_task(void *pvParameters) {
 
 void lcd_start_tasks(void) {
     xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
-    xTaskCreate(display_update_task, "display_update", 2048, NULL, 4, NULL);
+    xTaskCreate(display_update_task, "display_update", 2048, NULL, 5, NULL);
 }
 

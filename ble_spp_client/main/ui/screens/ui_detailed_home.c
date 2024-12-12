@@ -9,7 +9,8 @@ void ui_detailed_home_screen_init(void)
 {
     ui_detailed_home = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_detailed_home, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_img_src(ui_detailed_home, &ui_img_38597039, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_detailed_home, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_detailed_home, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_vesc_voltage = lv_label_create(ui_detailed_home);
     lv_obj_set_width(ui_vesc_voltage, LV_SIZE_CONTENT);   /// 1

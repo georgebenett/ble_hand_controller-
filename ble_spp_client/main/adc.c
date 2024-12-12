@@ -157,7 +157,7 @@ void adc_start_task(void) {
     }
 #endif
 
-    xTaskCreate(adc_task, "adc_task", 4096, NULL, 5, NULL);
+    xTaskCreate(adc_task, "adc_task", 4096, NULL, 6, NULL);
 }
 
 

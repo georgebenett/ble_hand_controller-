@@ -34,7 +34,6 @@ static TickType_t last_release_time = 0;
 static bool first_press_registered = false;
 static TaskHandle_t button_task_handle = NULL;
 static button_callback_entry_t callbacks[MAX_CALLBACKS] = {0};
-static bool is_detailed_view = false;
 static void default_button_handler(button_event_t event, void* user_data);
 
 static void notify_callbacks(button_event_t event) {

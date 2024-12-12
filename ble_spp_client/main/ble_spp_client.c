@@ -603,7 +603,7 @@ static void spp_uart_init(void)
     uart_param_config(UART_NUM_0, &uart_config);
     //Set UART pins
     uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    xTaskCreate(uart_task, "uTask", 2048, (void*)UART_NUM_0, 8, NULL);
+    xTaskCreate(uart_task, "uTask", 2048, (void*)UART_NUM_0, 6, NULL);
 }
 
 void spp_client_demo_init(void)
@@ -644,7 +644,7 @@ void spp_client_demo_init(void)
 
     ble_client_appRegister();
     spp_uart_init();
-    xTaskCreate(adc_send_task, "adc_send_task", 2048, NULL, 5, NULL);
+    xTaskCreate(adc_send_task, "adc_send_task", 2048, NULL, 6, NULL);
     xTaskCreate(log_rssi_task, "log_rssi_task", 2048, NULL, 5, NULL);
 }
 
