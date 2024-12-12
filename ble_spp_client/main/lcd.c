@@ -9,6 +9,7 @@
 #include "adc.h"
 #include "ble_spp_client.h"
 #include "vesc_config.h"
+#include "ui_updater.h"
 
 // Static variables
 static esp_lcd_panel_handle_t panel_handle = NULL;
@@ -141,16 +142,19 @@ static void display_update_task(void *pvParameters) {
     vesc_config_t config;
     ESP_ERROR_CHECK(vesc_config_load(&config));
 
+    ui_updater_init();
+
     while (1) {
-        // Get latest RPM from BLE service
+        // Get latest values
         int32_t speed = vesc_config_get_speed(&config);
-        
-        // Update the label with RPM value
-        if (ui_Label1 != NULL) {
-            lv_label_set_text_fmt(ui_Label1, "%ld", speed);
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(100)); // Update every 100ms
+        ui_update_speed(speed);
+
+        // Update other values as needed
+        // ui_update_battery_voltage(...);
+        // ui_update_motor_current(...);
+        // etc.
+
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 

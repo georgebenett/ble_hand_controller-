@@ -34,6 +34,7 @@ lv_obj_t * ui_vesc_voltage;
 lv_obj_t * ui_vesc_motor_current;
 lv_obj_t * ui_battery_current;
 lv_obj_t * ui_vesc_consumption;
+lv_obj_t * ui_Label3;
 // CUSTOM VARIABLES
 
 
@@ -48,9 +49,9 @@ lv_obj_t * ui_Image3;
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-const lv_img_dsc_t * ui_imgset_1710764198[1] = {&ui_img_106406083};
-const lv_img_dsc_t * ui_imgset_battery_[2] = {&ui_img_battery_100_png, &ui_img_battery_0_png};
 const lv_img_dsc_t * ui_imgset_battery[1] = {&ui_img_battery101_png};
+const lv_img_dsc_t * ui_imgset_battery_[2] = {&ui_img_battery_0_png, &ui_img_battery_100_png};
+const lv_img_dsc_t * ui_imgset_1710764198[1] = {&ui_img_106406083};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16

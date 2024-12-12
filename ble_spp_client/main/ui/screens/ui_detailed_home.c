@@ -47,5 +47,14 @@ void ui_detailed_home_screen_init(void)
     lv_label_set_text(ui_vesc_consumption, "mAh");
     lv_obj_set_style_text_font(ui_vesc_consumption, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Label3 = lv_label_create(ui_detailed_home);
+    lv_obj_set_width(ui_Label3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label3, 70);
+    lv_obj_set_y(ui_Label3, -57);
+    lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label3, "km/h");
+    lv_obj_set_style_text_font(ui_Label3, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
+
 
 }

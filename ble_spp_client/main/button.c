@@ -20,6 +20,13 @@ typedef struct {
     bool in_use;
 } button_callback_entry_t;
 
+typedef enum {
+    SCREEN_HOME,
+    SCREEN_DETAILED,
+    SCREEN_MAX
+} screen_state_t;
+
+static screen_state_t current_screen = SCREEN_HOME;
 static button_config_t button_cfg;
 static button_state_t current_state = BUTTON_IDLE;
 static TickType_t press_start_time = 0;
@@ -166,12 +173,21 @@ static void default_button_handler(button_event_t event, void* user_data) {
             lv_disp_load_scr(ui_shutdown_screen);
             break;
         case BUTTON_EVENT_DOUBLE_PRESS:
-            if (is_detailed_view) {
-                lv_disp_load_scr(ui_home_screen);
-                is_detailed_view = false;
-            } else {
-                lv_disp_load_scr(ui_detailed_home);
-                is_detailed_view = true;
+            // Cycle through screens
+            current_screen = (current_screen + 1) % SCREEN_MAX;
+
+            switch(current_screen) {
+                case SCREEN_HOME:
+                    lv_disp_load_scr(ui_home_screen);
+                    break;
+                case SCREEN_DETAILED:
+                    lv_disp_load_scr(ui_detailed_home);
+                    break;
+                default:
+                    // Should never happen, but reset to home screen if it does
+                    current_screen = SCREEN_HOME;
+                    lv_disp_load_scr(ui_home_screen);
+                    break;
             }
             break;
     }
