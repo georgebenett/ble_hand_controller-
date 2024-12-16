@@ -1,0 +1,16 @@
+{
+  "codename": "bebas_small",
+  "ttf_path": "/assets/BebasNeue-Regular.ttf",
+  "bin_path": "/assets/ui_font_bebas_small.bin",
+  "c_path": "/assets/ui_font_bebas_small.c",
+  "cfg_path": "/assets/ui_font_bebas_small.fcfg",
+  "size": 20,
+  "bpp": 4,
+  "letters": 0,
+  "ranges": [
+    "0x20-0x7f"
+  ],
+  "symbols": "km/hboardremote",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}

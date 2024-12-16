@@ -51,38 +51,38 @@ void ui_home_screen_screen_init(void)
     lv_obj_set_y(ui_Bar3, 70);
     lv_obj_set_align(ui_Bar3, LV_ALIGN_CENTER);
 
-    ui_Image4 = lv_img_create(ui_home_screen);
-    lv_img_set_src(ui_Image4, &ui_img_2113635023);
-    lv_obj_set_width(ui_Image4, LV_SIZE_CONTENT);   /// 50
-    lv_obj_set_height(ui_Image4, LV_SIZE_CONTENT);    /// 50
-    lv_obj_set_x(ui_Image4, 80);
-    lv_obj_set_y(ui_Image4, -120);
-    lv_obj_set_align(ui_Image4, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image4, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_zoom(ui_Image4, 200);
+    ui_controller_battery_icon = lv_img_create(ui_home_screen);
+    lv_img_set_src(ui_controller_battery_icon, &ui_img_battery_icon_png);
+    lv_obj_set_width(ui_controller_battery_icon, LV_SIZE_CONTENT);   /// 50
+    lv_obj_set_height(ui_controller_battery_icon, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_x(ui_controller_battery_icon, 80);
+    lv_obj_set_y(ui_controller_battery_icon, -120);
+    lv_obj_set_align(ui_controller_battery_icon, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_controller_battery_icon, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_controller_battery_icon, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_controller_battery_icon, 200);
 
-    ui_Label4 = lv_label_create(ui_home_screen);
-    lv_obj_set_width(ui_Label4, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label4, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label4, 80);
-    lv_obj_set_y(ui_Label4, -120);
-    lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label4, "90");
-    lv_obj_set_style_text_color(ui_Label4, lv_color_hex(0x232222), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label4, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_controller_battery_text = lv_label_create(ui_home_screen);
+    lv_obj_set_width(ui_controller_battery_text, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_controller_battery_text, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_controller_battery_text, 80);
+    lv_obj_set_y(ui_controller_battery_text, -120);
+    lv_obj_set_align(ui_controller_battery_text, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_controller_battery_text, "90");
+    lv_obj_set_style_text_color(ui_controller_battery_text, lv_color_hex(0x232222), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_controller_battery_text, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_controller_battery_text, &ui_font_bebas_small, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Image5 = lv_img_create(ui_home_screen);
-    lv_img_set_src(ui_Image5, &ui_img_177279753);
-    lv_obj_set_width(ui_Image5, LV_SIZE_CONTENT);   /// 50
-    lv_obj_set_height(ui_Image5, LV_SIZE_CONTENT);    /// 50
-    lv_obj_set_x(ui_Image5, 45);
-    lv_obj_set_y(ui_Image5, -121);
-    lv_obj_set_align(ui_Image5, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image5, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_zoom(ui_Image5, 135);
+    ui_no_connection_icon = lv_img_create(ui_home_screen);
+    lv_img_set_src(ui_no_connection_icon, &ui_img_no_connection_png);
+    lv_obj_set_width(ui_no_connection_icon, LV_SIZE_CONTENT);   /// 50
+    lv_obj_set_height(ui_no_connection_icon, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_x(ui_no_connection_icon, 45);
+    lv_obj_set_y(ui_no_connection_icon, -121);
+    lv_obj_set_align(ui_no_connection_icon, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_no_connection_icon, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_no_connection_icon, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_no_connection_icon, 135);
 
     ui_Label5 = lv_label_create(ui_home_screen);
     lv_obj_set_width(ui_Label5, LV_SIZE_CONTENT);   /// 1

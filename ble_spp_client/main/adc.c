@@ -337,8 +337,18 @@ uint8_t map_adc_value(uint32_t adc_value) {
     }
 
     // Perform the mapping
-    return (uint8_t)((adc_value - adc_input_min_value) *
-           (ADC_OUTPUT_MAX_VALUE - ADC_OUTPUT_MIN_VALUE) /
+    uint8_t mapped = (uint8_t)((adc_value - adc_input_min_value) *
+           (ADC_OUTPUT_MAX_VALUE - ADC_OUTPUT_MIN_VALUE - ADC_THROTTLE_OFFSET) /
            (adc_input_max_value - adc_input_min_value) +
            ADC_OUTPUT_MIN_VALUE);
+
+    // Add offset only to non-zero values to maintain 0 at minimum
+    if (mapped > 0) {
+        mapped += ADC_THROTTLE_OFFSET;
+    }
+    
+    // Constrain the final value to 0-255
+    if (mapped > 255) mapped = 255;
+    
+    return mapped;
 }

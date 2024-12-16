@@ -16,9 +16,9 @@ lv_obj_t * ui_Label1;
 lv_obj_t * ui_Label2;
 lv_obj_t * ui_Bar2;
 lv_obj_t * ui_Bar3;
-lv_obj_t * ui_Image4;
-lv_obj_t * ui_Label4;
-lv_obj_t * ui_Image5;
+lv_obj_t * ui_controller_battery_icon;
+lv_obj_t * ui_controller_battery_text;
+lv_obj_t * ui_no_connection_icon;
 lv_obj_t * ui_Label5;
 // CUSTOM VARIABLES
 
@@ -53,9 +53,6 @@ lv_obj_t * ui_Image3;
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-const lv_img_dsc_t * ui_imgset_1872542639[1] = {&ui_img_2113635023};
-const lv_img_dsc_t * ui_imgset_1070557679[1] = {&ui_img_480528337};
-const lv_img_dsc_t * ui_imgset_362710918[1] = {&ui_img_177279753};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
