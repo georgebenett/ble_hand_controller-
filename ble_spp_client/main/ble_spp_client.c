@@ -650,7 +650,6 @@ void spp_client_demo_init(void)
 
 static void adc_send_task(void *pvParameters) {
     uint8_t data_buffer[2];  // Just 2 bytes for a 12-bit ADC value
-    const char* TAG = "ADC_BLE";  // Add tag for logging
 
     while (1) {
         if (is_connect && db != NULL &&
@@ -658,9 +657,7 @@ static void adc_send_task(void *pvParameters) {
              (ESP_GATT_CHAR_PROP_BIT_WRITE_NR | ESP_GATT_CHAR_PROP_BIT_WRITE))){
 
             uint32_t adc_value = adc_get_latest_value();
-            
-            // Add logging of ADC value
-            ESP_LOGI(TAG, "Sending ADC value: %lu", adc_value);
+
 
             // Pack the ADC value into 2 bytes (little-endian)
             data_buffer[0] = (uint8_t)(adc_value & 0xFF);         // Low byte
