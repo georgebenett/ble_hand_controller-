@@ -25,8 +25,7 @@ static void splash_timer_cb(lv_timer_t * timer)
 
 void app_main(void)
 {
-    ESP_LOGI(TAG, "Starting Application");
-
+   
     // Initialize sleep module
     sleep_init();
 

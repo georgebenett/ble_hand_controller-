@@ -12,12 +12,14 @@
 #include "ble_spp_client.h"
 #include "hw_config.h"
 
+
+
 static const char *TAG = "ADC";
 static adc_oneshot_unit_handle_t adc1_handle;
 static adc_oneshot_unit_init_cfg_t init_config1;
 static adc_oneshot_chan_cfg_t config;
-static QueueHandle_t adc_display_queue = NULL;
 static uint32_t latest_adc_value = 0;
+static QueueHandle_t adc_display_queue = NULL;
 static bool adc_initialized = false;
 static int error_count = 0;
 static const int MAX_ERRORS = 5;

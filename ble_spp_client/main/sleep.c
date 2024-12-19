@@ -6,6 +6,10 @@
 #include "ui/ui.h"
 #include "lvgl.h"
 #include "esp_sleep.h"
+#include "driver/rtc_io.h"
+#include "soc/rtc.h"
+#include "esp_task_wdt.h"
+
 
 #define TAG "SLEEP"
 
@@ -22,18 +26,7 @@ static void set_bar_value(void * obj, int32_t v)
 
     // If we reach 100%, trigger sleep immediately
     if (v >= 100) {
-
-        // Configure EXT0 wakeup for ESP32-S3
-        ESP_ERROR_CHECK(gpio_pullup_en(MAIN_BUTTON_GPIO));
-        ESP_ERROR_CHECK(gpio_pulldown_dis(MAIN_BUTTON_GPIO));
-        ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0)); // Wake on low level (0)
-        vTaskDelay(pdMS_TO_TICKS(2000));
-
-        // Power down Hall sensor
-        gpio_set_level(HALL_SENSOR_VDD_PIN, 0);  // VDD off
-        gpio_set_level(HALL_SENSOR_GND_PIN, 0);  // GND off
-
-        esp_deep_sleep_start();
+        enter_deep_sleep();
     }
 }
 
@@ -61,7 +54,6 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
                 long_press_triggered = true;
                 // Switch to shutdown screen
                 lv_disp_load_scr(ui_shutdown_screen);
-
                 // Start bar animation
                 lv_anim_init(&arc_anim);
                 lv_anim_set_var(&arc_anim, ui_Bar4);
@@ -102,7 +94,6 @@ void sleep_init(void) {
     ESP_ERROR_CHECK(button_init(&config));
     button_register_callback(sleep_button_callback, NULL);
 
-    ESP_ERROR_CHECK(esp_sleep_enable_gpio_wakeup());
     last_activity_time = xTaskGetTickCount();
 }
 
@@ -128,19 +119,44 @@ void sleep_check_inactivity(bool is_ble_connected)
 
     // Check if we should go to sleep (if inactive and not connected)
     if (elapsed_time > INACTIVITY_TIMEOUT_MS && !is_ble_connected) {
-        ESP_LOGI(TAG, "System inactive for %lu ms and no BLE connection. Entering deep sleep.",
-                 elapsed_time);
-
-        // Power down Hall sensor
-        gpio_set_level(HALL_SENSOR_VDD_PIN, 0);  // VDD off
-        gpio_set_level(HALL_SENSOR_GND_PIN, 0);  // GND off
-
-        // Configure EXT0 wakeup for ESP32-S3
-        ESP_ERROR_CHECK(gpio_pullup_en(MAIN_BUTTON_GPIO));
-        ESP_ERROR_CHECK(gpio_pulldown_dis(MAIN_BUTTON_GPIO));
-        ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0)); // Wake on low level (0)
-
-        // Enter deep sleep
-        esp_deep_sleep_start();
+        enter_deep_sleep();
     }
+}
+
+void enter_deep_sleep(void) {
+
+    // Disable task watchdog (only if it was enabled)
+    #if CONFIG_ESP_TASK_WDT_EN
+        esp_task_wdt_deinit();
+    #endif
+
+    //power down lcd
+    gpio_set_level(TFT_GND_PIN, 0);
+    gpio_set_level(TFT_VDD_PIN, 0);
+
+    // Power down Hall sensor
+    gpio_set_level(HALL_SENSOR_VDD_PIN, 0);
+    gpio_set_level(HALL_SENSOR_GND_PIN, 0);
+
+    // Configure RTC GPIO for wake-up
+    rtc_gpio_init(MAIN_BUTTON_GPIO);
+    rtc_gpio_set_direction(MAIN_BUTTON_GPIO, RTC_GPIO_MODE_INPUT_ONLY);
+    rtc_gpio_pullup_en(MAIN_BUTTON_GPIO);
+    rtc_gpio_pulldown_dis(MAIN_BUTTON_GPIO);
+    rtc_gpio_hold_en(MAIN_BUTTON_GPIO);
+
+
+    while (gpio_get_level(MAIN_BUTTON_GPIO) == 0) { //wait for button to be released
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+    
+    // Add debounce delay after release
+    vTaskDelay(pdMS_TO_TICKS(100));
+    // Enable wake-up on low level (button press)
+    ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0));
+
+    // Enter deep sleep
+    ESP_LOGI(TAG, "Entering deep sleep");
+
+    esp_deep_sleep_start();
 }

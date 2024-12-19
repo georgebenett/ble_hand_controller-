@@ -27,6 +27,11 @@
     "esp_log.h": "c",
     "hw_config.h": "c",
     "task.h": "c",
-    "adc_oneshot.h": "c"
+    "adc_oneshot.h": "c",
+    "rtc_io.h": "c",
+    "rtc_wdt.h": "c",
+    "esp_pm.h": "c",
+    "rtc_periph.h": "c",
+    "sleep.h": "c"
   }
 }
