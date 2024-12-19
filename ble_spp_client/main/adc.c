@@ -50,6 +50,7 @@ esp_err_t adc_init(void)
     // ADC1 init configuration
     init_config1.unit_id = ADC_UNIT_1;
     init_config1.ulp_mode = ADC_ULP_MODE_DISABLE;
+    init_config1.clk_src = ADC_RTC_CLK_SRC_DEFAULT;
     ret = adc_oneshot_new_unit(&init_config1, &adc1_handle);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "ADC unit initialization failed");
@@ -66,6 +67,7 @@ esp_err_t adc_init(void)
     }
 
     adc_initialized = true;
+    ESP_LOGI(TAG, "ADC initialized successfully for GPIO 10 (ADC1_CH9)");
     return ESP_OK;
 }
 
@@ -339,19 +341,21 @@ uint8_t map_adc_value(uint32_t adc_value) {
         adc_value = adc_input_max_value;
     }
 
-    // Perform the mapping
-    uint8_t mapped = (uint8_t)((adc_value - adc_input_min_value) *
+    // Perform the mapping with intermediate uint32_t to prevent overflow
+    uint32_t temp = ((adc_value - adc_input_min_value) *
            (ADC_OUTPUT_MAX_VALUE - ADC_OUTPUT_MIN_VALUE - ADC_THROTTLE_OFFSET) /
            (adc_input_max_value - adc_input_min_value) +
            ADC_OUTPUT_MIN_VALUE);
 
     // Add offset only to non-zero values to maintain 0 at minimum
-    if (mapped > 0) {
-        mapped += ADC_THROTTLE_OFFSET;
+    if (temp > 0) {
+        temp += ADC_THROTTLE_OFFSET;
     }
 
-    // Constrain the final value to 0-255
-    if (mapped > 255) mapped = 255;
+    // Constrain to uint8_t range
+    if (temp > UINT8_MAX) {
+        temp = UINT8_MAX;
+    }
 
-    return mapped;
+    return (uint8_t)temp;
 }

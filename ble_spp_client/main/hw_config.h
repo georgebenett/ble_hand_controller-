@@ -5,7 +5,7 @@
 #include "esp_adc/adc_oneshot.h"
 
 /* ADC Configuration */
-#define THROTTLE_ADC_CHANNEL     ADC_CHANNEL_9 // adc1_ch9->gpio_num_10
+#define THROTTLE_PIN             ADC_CHANNEL_9 // adc1_ch9->gpio_num_10
 #define BATTERY_ADC_CHANNEL      ADC_CHANNEL_3
 
 #define HALL_SENSOR_GND_PIN      GPIO_NUM_13
@@ -25,4 +25,4 @@
 #define TFT_GND_PIN  GPIO_NUM_45
 #define TFT_VDD_PIN  GPIO_NUM_47
 
-#endif // HW_CONFIG_H 
+#endif // HW_CONFIG_H

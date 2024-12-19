@@ -11,8 +11,6 @@
 #define CALIBRATE_ADC 0
 
 #define ADC_SAMPLING_TICKS 20
-#define THROTTLE_PIN ADC_CHANNEL_2
-#define BATTERY_PIN  ADC_CHANNEL_3
 
 // Initial values that will be updated by calibration
 #define ADC_INITIAL_MAX_VALUE 4095  // 12-bit ADC max

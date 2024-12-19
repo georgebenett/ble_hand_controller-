@@ -32,6 +32,8 @@
     "rtc_wdt.h": "c",
     "esp_pm.h": "c",
     "rtc_periph.h": "c",
-    "sleep.h": "c"
+    "sleep.h": "c",
+    "nvs.h": "c",
+    "gpio.h": "c"
   }
 }
