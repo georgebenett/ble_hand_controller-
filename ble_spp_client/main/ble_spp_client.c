@@ -710,6 +710,6 @@ static void log_rssi_task(void *pvParameters) {
                 ESP_LOGE(GATTC_TAG, "Read RSSI failed: %s", esp_err_to_name(ret));
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Check RSSI every second
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Check RSSI every 2 seconds
     }
 }

@@ -40,10 +40,10 @@ void ui_update_connection_icon(void) {
             return;
         }
 
-        if (connection_quality < 33) {
+        if (connection_quality < 15) {
             lv_img_set_src(ui_no_connection_icon, &ui_img_33_connection_png);
         }
-        else if (connection_quality < 55) {
+        else if (connection_quality < 35) {
             lv_img_set_src(ui_no_connection_icon, &ui_img_66_connection_png);
         }
         else {
