@@ -5,16 +5,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
 #include "driver/gpio.h"
-
-// Display configuration
-#define TFT_MOSI_PIN GPIO_NUM_40
-#define TFT_SCLK_PIN GPIO_NUM_41
-#define TFT_CS_PIN   GPIO_NUM_6
-#define TFT_DC_PIN   GPIO_NUM_7
-#define TFT_RST_PIN  GPIO_NUM_39
-
-#define TFT_GND_PIN  GPIO_NUM_45
-#define TFT_VDD_PIN  GPIO_NUM_47
+#include "hw_config.h"
 
 #define LV_HOR_RES_MAX 240
 #define LV_VER_RES_MAX 320

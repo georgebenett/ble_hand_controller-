@@ -10,6 +10,7 @@
 #include "nvs.h"
 #include "sleep.h"
 #include "ble_spp_client.h"
+#include "hw_config.h"
 
 static const char *TAG = "ADC";
 static adc_oneshot_unit_handle_t adc1_handle;

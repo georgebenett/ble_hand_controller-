@@ -4,9 +4,7 @@
 #include <stdbool.h>
 #include "driver/gpio.h"
 #include "esp_err.h"
-
-// Button GPIO definitions
-#define MAIN_BUTTON_GPIO GPIO_NUM_8
+#include "hw_config.h"
 
 // Button timing definitions
 #define BUTTON_LONG_PRESS_TIME_MS 500

@@ -24,6 +24,9 @@
     "ui_events.h": "c",
     "button.h": "c",
     "esp_sleep.h": "c",
-    "esp_log.h": "c"
+    "esp_log.h": "c",
+    "hw_config.h": "c",
+    "task.h": "c",
+    "adc_oneshot.h": "c"
   }
 }
