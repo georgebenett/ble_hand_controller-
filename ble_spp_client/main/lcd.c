@@ -5,11 +5,14 @@
 #include "esp_heap_caps.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
 #include "ui/ui.h"
 #include "adc.h"
 #include "ble_spp_client.h"
 #include "vesc_config.h"
 #include "ui_updater.h"
+
+#define TAG "LCD"
 
 // Static variables
 static esp_lcd_panel_handle_t panel_handle = NULL;
@@ -113,7 +116,6 @@ void lcd_init(void) {
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 1000));
 
-
     // Start display tasks
     lcd_start_tasks();
 }
@@ -129,12 +131,18 @@ static void lv_tick_task(void *arg) {
 }
 
 static void lvgl_handler_task(void *pvParameters) {
-    // Minimum tick period is 10ms on ESP32
-    const TickType_t xFrequency = pdMS_TO_TICKS(10);
+    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
+    const TickType_t xFrequency = pdMS_TO_TICKS(20);
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     while (1) {
-        lv_timer_handler();
+        ESP_ERROR_CHECK(esp_task_wdt_reset());
+
+        if (xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+            lv_timer_handler();
+            xSemaphoreGive(lvgl_mutex);
+        }
+
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
@@ -142,36 +150,28 @@ static void lvgl_handler_task(void *pvParameters) {
 static void display_update_task(void *pvParameters) {
     vesc_config_t config;
     ESP_ERROR_CHECK(vesc_config_load(&config));
-
-    ui_updater_init();
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = pdMS_TO_TICKS(10);
+    uint32_t mutex_timeout_count = 0;
 
     while (1) {
-        // Get all values at once to reduce function calls
-        int32_t speed = vesc_config_get_speed(&config);
-        ui_update_speed(speed);
-
-        // Only update other values every 5 cycles to reduce memory pressure
-        static uint8_t counter = 0;
-        if (counter++ % 5 == 0) {
-            float voltage = get_latest_voltage();
-            float current_motor = get_latest_current_motor();
-            float current_in = get_latest_current_in();
-            float amp_hours = get_latest_amp_hours();
-
-            ui_update_battery_voltage(voltage);
-            ui_update_motor_current(current_motor);
-            ui_update_battery_current(current_in);
-            ui_update_consumption(amp_hours);
+        if (xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            mutex_timeout_count = 0;
+            int32_t speed = vesc_config_get_speed(&config);
+            ui_update_speed(speed);
+            xSemaphoreGive(lvgl_mutex);
+        } else {
+            mutex_timeout_count++;
+            if (mutex_timeout_count > 10) {
+                ESP_LOGE(TAG, "Display update blocked for too long, resetting mutex");
+                xSemaphoreGive(lvgl_mutex);  // Force release
+                mutex_timeout_count = 0;
+            }
         }
-
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
 void lcd_start_tasks(void) {
-    xTaskCreatePinnedToCore(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL, CORE_1);
-    xTaskCreatePinnedToCore(display_update_task, "display_update", 2048, NULL, 4, NULL, CORE_1);
+    xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 6, NULL);
+    xTaskCreate(display_update_task, "display_update", 2048, NULL, 5, NULL);
 }
 

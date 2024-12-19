@@ -106,7 +106,7 @@ void sleep_init(void) {
 
     last_activity_time = xTaskGetTickCount();
 
-    xTaskCreatePinnedToCore(sleep_monitor_task, "sleep_monitor", 2048, NULL, 4, NULL, CORE_1);
+    xTaskCreate(sleep_monitor_task, "sleep_monitor", 2048, NULL, 4, NULL);
 }
 
 void sleep_start_monitoring(void) {
@@ -161,7 +161,7 @@ void enter_deep_sleep(void) {
     while (gpio_get_level(MAIN_BUTTON_GPIO) == 0) { //wait for button to be released
         vTaskDelay(pdMS_TO_TICKS(10));
     }
-    
+
     // Add debounce delay after release
     vTaskDelay(pdMS_TO_TICKS(100));
     // Enable wake-up on low level (button press)

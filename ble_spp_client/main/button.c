@@ -158,8 +158,8 @@ uint32_t button_get_press_duration_ms(void) {
 }
 
 void button_start_monitoring(void) {
-    xTaskCreatePinnedToCore(button_monitor_task, "button_monitor", TASK_STACK_SIZE,
-                NULL, TASK_PRIORITY, &button_task_handle, CORE_1);
+    xTaskCreate(button_monitor_task, "button_monitor", TASK_STACK_SIZE,
+                NULL, TASK_PRIORITY, &button_task_handle);
 }
 
 static void default_button_handler(button_event_t event, void* user_data) {

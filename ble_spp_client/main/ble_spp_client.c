@@ -30,6 +30,7 @@
 #include "adc.h"
 #include "hw_config.h"
 #include "ui_updater.h"
+#include "main.h"
 
 #define DEVICE_NAME                 "GS-THUMB"
 #define GATTC_TAG                   "GATTC_SPP_DEMO"
@@ -60,10 +61,6 @@ enum {
     SPP_IDX_SPP_COMMAND_VAL,
     SPP_IDX_SPP_STATUS_VAL,
     SPP_IDX_SPP_STATUS_CFG,
-#ifdef SUPPORT_HEARTBEAT
-    SPP_IDX_SPP_HEARTBEAT_VAL,
-    SPP_IDX_SPP_HEARTBEAT_CFG,
-#endif
     SPP_IDX_NB,
 };
 
@@ -107,11 +104,6 @@ static esp_gattc_db_elem_t *db = NULL;
 static esp_ble_gap_cb_param_t scan_rst;
 static QueueHandle_t cmd_reg_queue = NULL;
 QueueHandle_t spp_uart_queue = NULL;
-
-#ifdef SUPPORT_HEARTBEAT
-static uint8_t  heartbeat_s[9] = {'E','s','p','r','e','s','s','i','f'};
-static QueueHandle_t cmd_heartbeat_queue = NULL;
-#endif
 
 static esp_bt_uuid_t spp_service_uuid = {
     .len  = ESP_UUID_LEN_16,
@@ -384,16 +376,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
             xQueueSend(cmd_reg_queue, &cmd,10/portTICK_PERIOD_MS);
             break;
         case SPP_IDX_SPP_STATUS_VAL:
-#ifdef SUPPORT_HEARTBEAT
-            cmd = SPP_IDX_SPP_HEARTBEAT_VAL;
-            xQueueSend(cmd_reg_queue, &cmd, 10/portTICK_PERIOD_MS);
-#endif
             break;
-#ifdef SUPPORT_HEARTBEAT
-        case SPP_IDX_SPP_HEARTBEAT_VAL:
-            xQueueSend(cmd_heartbeat_queue, &cmd, 10/portTICK_PERIOD_MS);
-            break;
-#endif
         default:
             break;
         };
@@ -472,44 +455,11 @@ void spp_client_reg_task(void* arg)
                     ESP_LOGI(GATTC_TAG,"Index = %d,UUID = 0x%04x, handle = %d", cmd_id, (db+SPP_IDX_SPP_STATUS_VAL)->uuid.uuid.uuid16, (db+SPP_IDX_SPP_STATUS_VAL)->attribute_handle);
                     esp_ble_gattc_register_for_notify(spp_gattc_if, gl_profile_tab[PROFILE_APP_ID].remote_bda, (db+SPP_IDX_SPP_STATUS_VAL)->attribute_handle);
                 }
-#ifdef SUPPORT_HEARTBEAT
-                else if(cmd_id == SPP_IDX_SPP_HEARTBEAT_VAL){
-                    ESP_LOGI(GATTC_TAG,"Index = %d,UUID = 0x%04x, handle = %d", cmd_id, (db+SPP_IDX_SPP_HEARTBEAT_VAL)->uuid.uuid.uuid16, (db+SPP_IDX_SPP_HEARTBEAT_VAL)->attribute_handle);
-                    esp_ble_gattc_register_for_notify(spp_gattc_if, gl_profile_tab[PROFILE_APP_ID].remote_bda, (db+SPP_IDX_SPP_HEARTBEAT_VAL)->attribute_handle);
-                }
-#endif
             }
         }
     }
 }
 
-#ifdef SUPPORT_HEARTBEAT
-void spp_heart_beat_task(void * arg)
-{
-    uint16_t cmd_id;
-
-    for(;;) {
-        vTaskDelay(50 / portTICK_PERIOD_MS);
-        if(xQueueReceive(cmd_heartbeat_queue, &cmd_id, portMAX_DELAY)) {
-            while(1){
-                if((is_connect == true) && (db != NULL) && ((db+SPP_IDX_SPP_HEARTBEAT_VAL)->properties & (ESP_GATT_CHAR_PROP_BIT_WRITE_NR | ESP_GATT_CHAR_PROP_BIT_WRITE))){
-                    esp_ble_gattc_write_char( spp_gattc_if,
-                                              spp_conn_id,
-                                              (db+SPP_IDX_SPP_HEARTBEAT_VAL)->attribute_handle,
-                                              sizeof(heartbeat_s),
-                                              (uint8_t *)heartbeat_s,
-                                              ESP_GATT_WRITE_TYPE_NO_RSP,
-                                              ESP_GATT_AUTH_REQ_NONE);
-                    vTaskDelay(5000 / portTICK_PERIOD_MS);
-                }else{
-                    ESP_LOGI(GATTC_TAG,"disconnect");
-                    break;
-                }
-            }
-        }
-    }
-}
-#endif
 
 void ble_client_appRegister(void)
 {
@@ -536,12 +486,9 @@ void ble_client_appRegister(void)
     }
 
     cmd_reg_queue = xQueueCreate(10, sizeof(uint32_t));
-    xTaskCreatePinnedToCore(spp_client_reg_task, "spp_client_reg_task", 2048, NULL, 10, NULL, CORE_0);
+    xTaskCreate(spp_client_reg_task, "spp_client_reg_task", 2048, NULL, 10, NULL);
 
-#ifdef SUPPORT_HEARTBEAT
-    cmd_heartbeat_queue = xQueueCreate(10, sizeof(uint32_t));
-    xTaskCreatePinnedToCore(spp_heart_beat_task, "spp_heart_beat_task", 2048, NULL, 10, NULL, CORE_0);
-#endif
+
 }
 
 void uart_task(void *pvParameters)
@@ -598,7 +545,7 @@ static void spp_uart_init(void)
     uart_param_config(UART_NUM_0, &uart_config);
     //Set UART pins
     uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    xTaskCreatePinnedToCore(uart_task, "uart_task", 2048, (void*)UART_NUM_0, 6, NULL, CORE_0);
+    xTaskCreate(uart_task, "uart_task", 2048, (void*)UART_NUM_0, 6, NULL);
 }
 
 void spp_client_demo_init(void)
@@ -639,8 +586,8 @@ void spp_client_demo_init(void)
 
     ble_client_appRegister();
     spp_uart_init();
-    xTaskCreatePinnedToCore(adc_send_task, "adc_send_task", 2048, NULL, 6, NULL, CORE_0);
-    xTaskCreatePinnedToCore(log_rssi_task, "log_rssi_task", 2048, NULL, 5, NULL, CORE_0);
+    xTaskCreate(adc_send_task, "adc_send_task", 2048, NULL, 6, NULL);
+    xTaskCreate(log_rssi_task, "log_rssi_task", 2048, NULL, 5, NULL);
 }
 
 static void adc_send_task(void *pvParameters) {
@@ -672,34 +619,58 @@ static void adc_send_task(void *pvParameters) {
     }
 }
 
-float get_latest_voltage(void)
-{
-    return latest_voltage;
+float get_latest_voltage(void) {
+    float value = 0;
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        value = latest_voltage;
+        xSemaphoreGive(ble_data_mutex);
+    }
+    return value;
 }
 
-int32_t get_latest_erpm(void)
-{
-    return latest_erpm;
+int32_t get_latest_erpm(void) {
+    int32_t value = 0;
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        value = latest_erpm;
+        xSemaphoreGive(ble_data_mutex);
+    }
+    return value;
 }
 
-float get_latest_current_motor(void)
-{
-    return latest_current_motor;
+float get_latest_current_motor(void) {
+    float value = 0;
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        value = latest_current_motor;
+        xSemaphoreGive(ble_data_mutex);
+    }
+    return value;
 }
 
-float get_latest_current_in(void)
-{
-    return latest_current_in;
+float get_latest_current_in(void) {
+    float value = 0;
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        value = latest_current_in;
+        xSemaphoreGive(ble_data_mutex);
+    }
+    return value;
 }
 
-float get_latest_amp_hours(void)
-{
-    return latest_amp_hours;
+float get_latest_amp_hours(void) {
+    float value = 0;
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        value = latest_amp_hours;
+        xSemaphoreGive(ble_data_mutex);
+    }
+    return value;
 }
 
-float get_latest_amp_hours_charged(void)
-{
-    return latest_amp_hours_charged;
+float get_latest_amp_hours_charged(void) {
+    float value = 0;
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        value = latest_amp_hours_charged;
+        xSemaphoreGive(ble_data_mutex);
+    }
+    return value;
 }
 
 static void log_rssi_task(void *pvParameters) {
@@ -711,5 +682,15 @@ static void log_rssi_task(void *pvParameters) {
             }
         }
         vTaskDelay(pdMS_TO_TICKS(2000)); // Check RSSI every 2 seconds
+    }
+}
+
+void update_vesc_data(float voltage, int32_t erpm, float current_motor, float current_in) {
+    if (xSemaphoreTake(ble_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        latest_voltage = voltage;
+        latest_erpm = erpm;
+        latest_current_motor = current_motor;
+        latest_current_in = current_in;
+        xSemaphoreGive(ble_data_mutex);
     }
 }

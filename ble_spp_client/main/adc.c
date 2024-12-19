@@ -162,7 +162,7 @@ void adc_start_task(void) {
     }
 #endif
 
-    xTaskCreatePinnedToCore(adc_task, "adc_task", 2048, NULL, 5, NULL, CORE_1);
+    xTaskCreate(adc_task, "adc_task", 2048, NULL, 5, NULL);
 }
 
 

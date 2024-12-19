@@ -25,7 +25,7 @@
     "uiExportFolderPath": "/home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/main/ui",
     "projectExportFolderPath": "/home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/main/ui",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 84,
+    "backup_cnt": 85,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

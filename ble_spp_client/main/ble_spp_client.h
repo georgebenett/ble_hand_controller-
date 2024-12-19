@@ -1,3 +1,7 @@
+#pragma once
+
+#include "main.h"
+
 #ifndef SPP_CLIENT_DEMO_H
 #define SPP_CLIENT_DEMO_H
 
