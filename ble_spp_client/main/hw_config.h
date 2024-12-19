@@ -5,8 +5,11 @@
 #include "esp_adc/adc_oneshot.h"
 
 /* ADC Configuration */
-#define THROTTLE_ADC_CHANNEL     ADC_CHANNEL_2
+#define THROTTLE_ADC_CHANNEL     ADC_CHANNEL_9 // adc1_ch9->gpio_num_10
 #define BATTERY_ADC_CHANNEL      ADC_CHANNEL_3
+
+#define HALL_SENSOR_GND_PIN      GPIO_NUM_13
+#define HALL_SENSOR_VDD_PIN      GPIO_NUM_11
 
 
 /* Button Configuration */

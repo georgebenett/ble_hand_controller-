@@ -19,7 +19,7 @@ static bool arc_animation_active = false;
 static void set_bar_value(void * obj, int32_t v)
 {
     lv_bar_set_value(obj, v, LV_ANIM_OFF);
-    
+
     // If we reach 100%, trigger sleep immediately
     if (v >= 100) {
 
@@ -28,6 +28,11 @@ static void set_bar_value(void * obj, int32_t v)
         ESP_ERROR_CHECK(gpio_pulldown_dis(MAIN_BUTTON_GPIO));
         ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0)); // Wake on low level (0)
         vTaskDelay(pdMS_TO_TICKS(2000));
+
+        // Power down Hall sensor
+        gpio_set_level(HALL_SENSOR_VDD_PIN, 0);  // VDD off
+        gpio_set_level(HALL_SENSOR_GND_PIN, 0);  // GND off
+
         esp_deep_sleep_start();
     }
 }
@@ -56,7 +61,7 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
                 long_press_triggered = true;
                 // Switch to shutdown screen
                 lv_disp_load_scr(ui_shutdown_screen);
-                
+
                 // Start bar animation
                 lv_anim_init(&arc_anim);
                 lv_anim_set_var(&arc_anim, ui_Bar4);
@@ -80,6 +85,19 @@ void sleep_init(void) {
         .double_press_time_ms = BUTTON_DOUBLE_PRESS_TIME_MS,
         .active_low = true
     };
+
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << HALL_SENSOR_VDD_PIN) | (1ULL << HALL_SENSOR_GND_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    // Set initial state - power on the sensor
+    gpio_set_level(HALL_SENSOR_VDD_PIN, 1);  // VDD on
+    gpio_set_level(HALL_SENSOR_GND_PIN, 0);  // GND off
 
     ESP_ERROR_CHECK(button_init(&config));
     button_register_callback(sleep_button_callback, NULL);
@@ -112,6 +130,10 @@ void sleep_check_inactivity(bool is_ble_connected)
     if (elapsed_time > INACTIVITY_TIMEOUT_MS && !is_ble_connected) {
         ESP_LOGI(TAG, "System inactive for %lu ms and no BLE connection. Entering deep sleep.",
                  elapsed_time);
+
+        // Power down Hall sensor
+        gpio_set_level(HALL_SENSOR_VDD_PIN, 0);  // VDD off
+        gpio_set_level(HALL_SENSOR_GND_PIN, 0);  // GND off
 
         // Configure EXT0 wakeup for ESP32-S3
         ESP_ERROR_CHECK(gpio_pullup_en(MAIN_BUTTON_GPIO));

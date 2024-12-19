@@ -347,9 +347,9 @@ uint8_t map_adc_value(uint32_t adc_value) {
     if (mapped > 0) {
         mapped += ADC_THROTTLE_OFFSET;
     }
-    
+
     // Constrain the final value to 0-255
     if (mapped > 255) mapped = 255;
-    
+
     return mapped;
 }
