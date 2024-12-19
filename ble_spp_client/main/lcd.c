@@ -84,13 +84,13 @@ void lcd_init(void) {
     lv_init();
 
     // Allocate two buffers for double buffering with 1/X screen size
-    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/16) * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    buf1 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/8) * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1 != NULL);
-    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/16) * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    buf2 = heap_caps_malloc(LV_HOR_RES_MAX * (LV_VER_RES_MAX/8) * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf2 != NULL);
 
-    // Initialize with both buffers
-    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * (LV_VER_RES_MAX/16));
+    // Initialize with smaller buffer size
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LV_HOR_RES_MAX * (LV_VER_RES_MAX/8));
 
     lv_disp_drv_init(&disp_drv);
     disp_drv.flush_cb = flush_cb;
@@ -129,6 +129,7 @@ static void lv_tick_task(void *arg) {
 }
 
 static void lvgl_handler_task(void *pvParameters) {
+    // Minimum tick period is 10ms on ESP32
     const TickType_t xFrequency = pdMS_TO_TICKS(10);
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
@@ -143,23 +144,34 @@ static void display_update_task(void *pvParameters) {
     ESP_ERROR_CHECK(vesc_config_load(&config));
 
     ui_updater_init();
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xFrequency = pdMS_TO_TICKS(10);
 
     while (1) {
-        // Get latest values
+        // Get all values at once to reduce function calls
         int32_t speed = vesc_config_get_speed(&config);
         ui_update_speed(speed);
 
-        // Update other values as needed
-        // ui_update_battery_voltage(...);
-        // ui_update_motor_current(...);
-        // etc.
+        // Only update other values every 5 cycles to reduce memory pressure
+        static uint8_t counter = 0;
+        if (counter++ % 5 == 0) {
+            float voltage = get_latest_voltage();
+            float current_motor = get_latest_current_motor();
+            float current_in = get_latest_current_in();
+            float amp_hours = get_latest_amp_hours();
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+            ui_update_battery_voltage(voltage);
+            ui_update_motor_current(current_motor);
+            ui_update_battery_current(current_in);
+            ui_update_consumption(amp_hours);
+        }
+
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
 
 void lcd_start_tasks(void) {
-    xTaskCreate(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL);
-    xTaskCreate(display_update_task, "display_update", 2048, NULL, 5, NULL);
+    xTaskCreatePinnedToCore(lvgl_handler_task, "lvgl_handler", 4096, NULL, 5, NULL, CORE_1);
+    xTaskCreatePinnedToCore(display_update_task, "display_update", 2048, NULL, 4, NULL, CORE_1);
 }
 

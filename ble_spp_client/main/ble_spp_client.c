@@ -536,7 +536,7 @@ void ble_client_appRegister(void)
     }
     esp_ble_gattc_app_register(PROFILE_APP_ID);
 
-    esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(200);
+    esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(512);
     if (local_mtu_ret){
         ESP_LOGE(GATTC_TAG, "set local  MTU failed: %s", esp_err_to_name_r(local_mtu_ret, err_msg, sizeof(err_msg)));
     }
