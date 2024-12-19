@@ -22,9 +22,11 @@ static void set_bar_value(void * obj, int32_t v)
     
     // If we reach 100%, trigger sleep immediately
     if (v >= 100) {
-        ESP_LOGI(TAG, "Bar filled - Entering deep sleep mode");
-        ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << MAIN_BUTTON_GPIO,
-                                                      ESP_GPIO_WAKEUP_GPIO_LOW));
+
+        // Configure EXT0 wakeup for ESP32-S3
+        ESP_ERROR_CHECK(gpio_pullup_en(MAIN_BUTTON_GPIO));
+        ESP_ERROR_CHECK(gpio_pulldown_dis(MAIN_BUTTON_GPIO));
+        ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0)); // Wake on low level (0)
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_deep_sleep_start();
     }
@@ -111,9 +113,10 @@ void sleep_check_inactivity(bool is_ble_connected)
         ESP_LOGI(TAG, "System inactive for %lu ms and no BLE connection. Entering deep sleep.",
                  elapsed_time);
 
-        // Configure wakeup on button press (transition from HIGH to LOW)
-        ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << MAIN_BUTTON_GPIO,
-                                                      ESP_GPIO_WAKEUP_GPIO_LOW));
+        // Configure EXT0 wakeup for ESP32-S3
+        ESP_ERROR_CHECK(gpio_pullup_en(MAIN_BUTTON_GPIO));
+        ESP_ERROR_CHECK(gpio_pulldown_dis(MAIN_BUTTON_GPIO));
+        ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0)); // Wake on low level (0)
 
         // Enter deep sleep
         esp_deep_sleep_start();
