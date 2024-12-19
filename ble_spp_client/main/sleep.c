@@ -9,6 +9,8 @@
 #include "driver/rtc_io.h"
 #include "soc/rtc.h"
 #include "esp_task_wdt.h"
+#include "hw_config.h"
+#include "ble_spp_client.h"
 
 
 #define TAG "SLEEP"
@@ -26,6 +28,7 @@ static void set_bar_value(void * obj, int32_t v)
 
     // If we reach 100%, trigger sleep immediately
     if (v >= 100) {
+        vTaskDelay(pdMS_TO_TICKS(250));
         enter_deep_sleep();
     }
 }
@@ -70,6 +73,13 @@ static void sleep_button_callback(button_event_t event, void* user_data) {
     }
 }
 
+static void sleep_monitor_task(void *pvParameters) {
+    while (1) {
+        sleep_check_inactivity(is_connect);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
 void sleep_init(void) {
     button_config_t config = {
         .gpio_num = MAIN_BUTTON_GPIO,
@@ -95,6 +105,8 @@ void sleep_init(void) {
     button_register_callback(sleep_button_callback, NULL);
 
     last_activity_time = xTaskGetTickCount();
+
+    xTaskCreatePinnedToCore(sleep_monitor_task, "sleep_monitor", 2048, NULL, 4, NULL, CORE_1);
 }
 
 void sleep_start_monitoring(void) {

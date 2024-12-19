@@ -4,6 +4,9 @@
 #include "driver/gpio.h"
 #include "esp_adc/adc_oneshot.h"
 
+#define CORE_0 0
+#define CORE_1 1
+
 /* ADC Configuration */
 #define THROTTLE_PIN             ADC_CHANNEL_9 // adc1_ch9->gpio_num_10
 #define BATTERY_ADC_CHANNEL      ADC_CHANNEL_3

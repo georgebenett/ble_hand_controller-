@@ -14,7 +14,10 @@
 #include "vesc_config.h"
 
 #define TAG "MAIN"
-
+#define LVGL_TASK_PRIORITY        5
+#define BLE_TASK_PRIORITY        10
+#define ADC_TASK_PRIORITY         6
+#define SLEEP_MONITOR_PRIORITY    4
 
 extern bool is_connect;
 
@@ -25,7 +28,6 @@ static void splash_timer_cb(lv_timer_t * timer)
 
 void app_main(void)
 {
-   
     // Initialize sleep module
     sleep_init();
 
@@ -56,20 +58,17 @@ void app_main(void)
     // Initialize LCD and LVGL
     lcd_init();
 
-
-    // Start sleep monitoring
-    sleep_start_monitoring();
-
     // Initialize SquareLine Studio UI
     ui_init();
-    lv_disp_load_scr(ui_splash_screen);  // Load splash screen first
-    lv_timer_t * splash_timer = lv_timer_create(splash_timer_cb, 1000, NULL);  // Create timer for 1 seconds
-    lv_timer_set_repeat_count(splash_timer, 1);  // Run only once
+    lv_disp_load_scr(ui_splash_screen);
+    lv_timer_t * splash_timer = lv_timer_create(splash_timer_cb, 1000, NULL);
+    lv_timer_set_repeat_count(splash_timer, 1);
 
-    // Main task can now sleep
-    while (1) {
-        sleep_check_inactivity(is_connect);
+    // Start button monitoring
+    sleep_start_monitoring();
 
+    // Keep main task alive with minimal CPU usage
+    while(1) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }

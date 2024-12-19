@@ -28,6 +28,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "adc.h"
+#include "hw_config.h"
 
 #define DEVICE_NAME                 "GS-THUMB"
 #define GATTC_TAG                   "GATTC_SPP_DEMO"
@@ -541,11 +542,11 @@ void ble_client_appRegister(void)
     }
 
     cmd_reg_queue = xQueueCreate(10, sizeof(uint32_t));
-    xTaskCreate(spp_client_reg_task, "spp_client_reg_task", 2048, NULL, 10, NULL);
+    xTaskCreatePinnedToCore(spp_client_reg_task, "spp_client_reg_task", 2048, NULL, 10, NULL, CORE_0);
 
 #ifdef SUPPORT_HEARTBEAT
     cmd_heartbeat_queue = xQueueCreate(10, sizeof(uint32_t));
-    xTaskCreate(spp_heart_beat_task, "spp_heart_beat_task", 2048, NULL, 10, NULL);
+    xTaskCreatePinnedToCore(spp_heart_beat_task, "spp_heart_beat_task", 2048, NULL, 10, NULL, CORE_0);
 #endif
 }
 
@@ -603,7 +604,7 @@ static void spp_uart_init(void)
     uart_param_config(UART_NUM_0, &uart_config);
     //Set UART pins
     uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    xTaskCreate(uart_task, "uTask", 2048, (void*)UART_NUM_0, 6, NULL);
+    xTaskCreatePinnedToCore(uart_task, "uart_task", 2048, (void*)UART_NUM_0, 6, NULL, CORE_0);
 }
 
 void spp_client_demo_init(void)
@@ -644,8 +645,8 @@ void spp_client_demo_init(void)
 
     ble_client_appRegister();
     spp_uart_init();
-    xTaskCreate(adc_send_task, "adc_send_task", 2048, NULL, 6, NULL);
-    xTaskCreate(log_rssi_task, "log_rssi_task", 2048, NULL, 5, NULL);
+    xTaskCreatePinnedToCore(adc_send_task, "adc_send_task", 2048, NULL, 6, NULL, CORE_0);
+    xTaskCreatePinnedToCore(log_rssi_task, "log_rssi_task", 2048, NULL, 5, NULL, CORE_0);
 }
 
 static void adc_send_task(void *pvParameters) {
