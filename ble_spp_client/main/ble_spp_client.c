@@ -29,6 +29,7 @@
 #include "freertos/FreeRTOS.h"
 #include "adc.h"
 #include "hw_config.h"
+#include "ui_updater.h"
 
 #define DEVICE_NAME                 "GS-THUMB"
 #define GATTC_TAG                   "GATTC_SPP_DEMO"
@@ -123,7 +124,6 @@ static float latest_current_motor = 0.0f;
 static float latest_current_in = 0.0f;
 static float latest_amp_hours = 0.0f;
 static float latest_amp_hours_charged = 0.0f;
-static int connection_quality = 0;
 
 static void notify_event_handler(esp_ble_gattc_cb_param_t * p_data)
 {
@@ -265,13 +265,7 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
     case ESP_GAP_BLE_READ_RSSI_COMPLETE_EVT:
         if (param->read_rssi_cmpl.status == ESP_BT_STATUS_SUCCESS) {
             int rssi = param->read_rssi_cmpl.rssi;
-            connection_quality = ((rssi + 100) * 100) / 70;  // Normalize to percentage
-
-            // Clamp percentage between 0 and 100
-            if (connection_quality > 100) connection_quality = 100;
-            if (connection_quality < 0) connection_quality = 0;
-
-            //printf("Connection Quality: %d%% (RSSI: %d dBm)\n", connection_quality, rssi);
+            ui_update_connection_quality(rssi);
         } else {
             ESP_LOGE(GATTC_TAG, "RSSI read failed: %d", param->read_rssi_cmpl.status);
         }
@@ -718,8 +712,4 @@ static void log_rssi_task(void *pvParameters) {
         }
         vTaskDelay(pdMS_TO_TICKS(1000)); // Check RSSI every second
     }
-}
-
-int get_connection_quality(void) {
-    return connection_quality;
 }
