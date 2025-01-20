@@ -39,6 +39,17 @@ void init_system_mutexes(void) {
     }
 }
 
+// Add this function before app_main()
+static void splash_timer_cb(lv_timer_t * timer) {
+    // Switch from splash screen to home screen
+    lv_disp_load_scr(ui_home_screen);
+    
+    // Optional: Delete the timer since we only need it once
+    if (timer != NULL) {
+        lv_timer_del(timer);
+    }
+}
+
 void app_main(void)
 {
     // Initialize sleep module
@@ -73,6 +84,11 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Initializing display");
     ESP_ERROR_CHECK(display_init());
+
+    ui_init();
+    lv_disp_load_scr(ui_splash_screen);
+    lv_timer_t *splash_timer = lv_timer_create(splash_timer_cb, 1000, NULL);
+    lv_timer_set_repeat_count(splash_timer, 1);
 
        // Start button monitoring
     sleep_start_monitoring();
