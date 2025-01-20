@@ -1673,15 +1673,15 @@
         "deepid": 678993718,
         "children": [
           {
-            "guid": "GUID59299745-610867S26351420",
-            "deepid": 371165062,
+            "guid": "GUID6060773-982290S745420",
+            "deepid": 378876242,
             "dont_export": false,
             "locked": false,
             "properties": [
               {
                 "nid": 10,
                 "strtype": "OBJECT/Name",
-                "strval": "Switch1",
+                "strval": "Switch2",
                 "InheritedType": 10
               },
               {
@@ -2054,7 +2054,7 @@
     "uiExportFolderPath": "/home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/main/ui",
     "projectExportFolderPath": "/home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/main/ui",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 99,
+    "backup_cnt": 105,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.6",
     "callfuncsexport": "C_FILE",

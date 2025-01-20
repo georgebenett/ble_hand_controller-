@@ -95,9 +95,14 @@ static void lvgl_touch_cb(lv_indev_drv_t *drv, lv_indev_data_t *data)
     uint16_t tp_x;
     uint16_t tp_y;
     uint8_t tp_cnt = 0;
-    /* Read data from touch controller into memory */
-    esp_lcd_touch_read_data(tp);
-    /* Read data from touch controller */
+    
+    esp_err_t err = esp_lcd_touch_read_data(tp);
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Touch read failed: %s", esp_err_to_name(err));
+        data->state = LV_INDEV_STATE_RELEASED;
+        return;
+    }
+
     bool tp_pressed = esp_lcd_touch_get_coordinates(tp, &tp_x, &tp_y, NULL, &tp_cnt, 1);
     if (tp_pressed && tp_cnt > 0) {
         data->point.x = tp_x;
@@ -264,8 +269,11 @@ esp_err_t display_init(void)
     indev_drv.disp = disp;
     indev_drv.read_cb = lvgl_touch_cb;
     indev_drv.user_data = tp;
-    lv_indev_drv_register(&indev_drv);
+    lv_indev_t * touch_indev = lv_indev_drv_register(&indev_drv);
 
+    // Set gesture parameters
+    indev_drv.gesture_limit = 20;
+    indev_drv.gesture_min_velocity = 3;
 
     // Create a mutex for LVGL
     lvgl_mux = xSemaphoreCreateMutex();

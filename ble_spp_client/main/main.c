@@ -45,7 +45,7 @@ void init_system_mutexes(void) {
 static void splash_timer_cb(lv_timer_t * timer) {
     // Switch from splash screen to home screen
     lv_disp_load_scr(ui_home_screen);
-    
+
     // Optional: Delete the timer since we only need it once
     if (timer != NULL) {
         lv_timer_del(timer);

@@ -38,7 +38,7 @@ extern lv_obj_t * ui_Bar4;
 // SCREEN: ui_detailed_home
 void ui_detailed_home_screen_init(void);
 extern lv_obj_t * ui_detailed_home;
-extern lv_obj_t * ui_Switch1;
+extern lv_obj_t * ui_Switch2;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_splash_screen
@@ -56,13 +56,13 @@ LV_IMG_DECLARE(ui_img_gb_png);    // assets/GB.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_bebas120);
+LV_FONT_DECLARE(ui_font_bebas20);
+LV_FONT_DECLARE(ui_font_bebas200);
 LV_FONT_DECLARE(ui_font_bebas25);
 LV_FONT_DECLARE(ui_font_bebas30);
-LV_FONT_DECLARE(ui_font_bebas_14);
 LV_FONT_DECLARE(ui_font_bebas50);
-LV_FONT_DECLARE(ui_font_bebas200);
-LV_FONT_DECLARE(ui_font_bebas20);
 LV_FONT_DECLARE(ui_font_bebas75);
+LV_FONT_DECLARE(ui_font_bebas_14);
 
 // UI INIT
 void ui_init(void);

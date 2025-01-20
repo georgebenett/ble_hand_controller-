@@ -12,10 +12,10 @@ void ui_detailed_home_screen_init(void)
     lv_obj_set_style_bg_color(ui_detailed_home, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_detailed_home, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Switch1 = lv_switch_create(ui_detailed_home);
-    lv_obj_set_width(ui_Switch1, 100);
-    lv_obj_set_height(ui_Switch1, 50);
-    lv_obj_set_align(ui_Switch1, LV_ALIGN_CENTER);
+    ui_Switch2 = lv_switch_create(ui_detailed_home);
+    lv_obj_set_width(ui_Switch2, 100);
+    lv_obj_set_height(ui_Switch2, 50);
+    lv_obj_set_align(ui_Switch2, LV_ALIGN_CENTER);
 
 
 
