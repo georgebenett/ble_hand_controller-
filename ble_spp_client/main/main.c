@@ -28,11 +28,6 @@ SemaphoreHandle_t lvgl_mutex = NULL;
 SemaphoreHandle_t ble_data_mutex = NULL;
 SemaphoreHandle_t adc_mutex = NULL;
 
-static void splash_timer_cb(lv_timer_t * timer)
-{
-    lv_disp_load_scr(ui_home_screen);  // Switch to home screen after timeout
-}
-
 void init_system_mutexes(void) {
     lvgl_mutex = xSemaphoreCreateMutex();
     ble_data_mutex = xSemaphoreCreateMutex();
@@ -76,16 +71,10 @@ void app_main(void)
     spp_client_demo_init();
     ESP_LOGI(TAG, "BLE Initialization complete");
 
-    // Initialize LCD and LVGL
-    lcd_init();
+    ESP_LOGI(TAG, "Initializing display");
+    ESP_ERROR_CHECK(display_init());
 
-    // Initialize SquareLine Studio UI
-    ui_init();
-    lv_disp_load_scr(ui_splash_screen);
-    lv_timer_t * splash_timer = lv_timer_create(splash_timer_cb, 1000, NULL);
-    lv_timer_set_repeat_count(splash_timer, 1);
-
-    // Start button monitoring
+       // Start button monitoring
     sleep_start_monitoring();
 
     // Keep main task alive with minimal CPU usage

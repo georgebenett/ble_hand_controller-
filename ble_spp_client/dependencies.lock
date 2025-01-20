@@ -1,4 +1,16 @@
 dependencies:
+  espressif/cmake_utilities:
+    dependencies: []
+    source:
+      path: /home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/components/espressif__cmake_utilities
+      type: local
+    version: 0.5.3
+  espressif/esp_lcd_touch:
+    dependencies: []
+    source:
+      path: /home/george/Documents/myrepo/ble_hand_controller/ble_spp_client/components/espressif__esp_lcd_touch
+      type: local
+    version: 1.1.1
   idf:
     source:
       type: idf
@@ -11,8 +23,10 @@ dependencies:
       type: service
     version: 8.4.0
 direct_dependencies:
+- espressif/cmake_utilities
+- espressif/esp_lcd_touch
 - idf
 - lvgl/lvgl
-manifest_hash: bfbb2f25dda15462717a1da9e04b4ca93afcba119dbd6c4bf3179ba6be61ff03
+manifest_hash: dc8f9125de1c2bd57f0712f31d4094c0cf947d0f740a7acaf5bb8285fc1eb642
 target: esp32s3
 version: 2.0.0

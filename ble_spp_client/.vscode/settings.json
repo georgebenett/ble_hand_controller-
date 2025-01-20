@@ -1,7 +1,7 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
   "idf.flashType": "UART",
-  "idf.port": "/dev/ttyACM0",
+  "idf.port": "/dev/ttyACM1",
   "idf.adapterTargetName": "esp32c3",
   "idf.openOcdConfigs": [
     "interface/ftdi/esp32_devkitj_v1.cfg",
@@ -34,6 +34,8 @@
     "rtc_periph.h": "c",
     "sleep.h": "c",
     "nvs.h": "c",
-    "gpio.h": "c"
+    "gpio.h": "c",
+    "esp_lcd_sh8601.h": "c",
+    "esp_lcd_touch_ft5x06.h": "c"
   }
 }

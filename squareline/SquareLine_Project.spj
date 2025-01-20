@@ -1145,8 +1145,8 @@
           }
         ],
         "isPage": true,
-        "editor_posx": 600,
-        "editor_posy": -300,
+        "editor_posx": 851,
+        "editor_posy": -460,
         "dont_export": false,
         "locked": false,
         "properties": [
@@ -1554,8 +1554,8 @@
           }
         ],
         "isPage": true,
-        "editor_posx": 900,
-        "editor_posy": -300,
+        "editor_posx": 1265,
+        "editor_posy": -460,
         "dont_export": false,
         "locked": false,
         "properties": [
@@ -2374,8 +2374,8 @@
           }
         ],
         "isPage": true,
-        "editor_posx": 600,
-        "editor_posy": -705,
+        "editor_posx": 851,
+        "editor_posy": -1012,
         "dont_export": false,
         "locked": false,
         "properties": [
@@ -2687,8 +2687,8 @@
                 "flags": 51,
                 "strtype": "OBJECT/Size",
                 "intarray": [
-                  240,
-                  320
+                  368,
+                  448
                 ],
                 "InheritedType": 7
               },
@@ -2784,8 +2784,8 @@
           }
         ],
         "isPage": true,
-        "editor_posx": 300,
-        "editor_posy": -300,
+        "editor_posx": 438,
+        "editor_posy": -461,
         "dont_export": false,
         "locked": false,
         "properties": [
@@ -2916,8 +2916,8 @@
   "info": {
     "name": "SquareLine_Project.spj",
     "depth": 2,
-    "width": 240,
-    "height": 320,
+    "width": 368,
+    "height": 448,
     "rotation": 0,
     "offset_x": 0,
     "offset_y": 0,

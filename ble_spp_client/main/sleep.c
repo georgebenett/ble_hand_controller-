@@ -89,7 +89,7 @@ void sleep_init(void) {
     };
 
     gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << HALL_SENSOR_VDD_PIN) | (1ULL << HALL_SENSOR_GND_PIN),
+        .pin_bit_mask = (1ULL << HALL_SENSOR_VDD_PIN),
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -99,7 +99,6 @@ void sleep_init(void) {
 
     // Set initial state - power on the sensor
     gpio_set_level(HALL_SENSOR_VDD_PIN, 1);  // VDD on
-    gpio_set_level(HALL_SENSOR_GND_PIN, 0);  // GND off
 
     ESP_ERROR_CHECK(button_init(&config));
     button_register_callback(sleep_button_callback, NULL);
@@ -142,13 +141,9 @@ void enter_deep_sleep(void) {
         esp_task_wdt_deinit();
     #endif
 
-    //power down lcd
-    gpio_set_level(TFT_GND_PIN, 0);
-    gpio_set_level(TFT_VDD_PIN, 0);
-
     // Power down Hall sensor
     gpio_set_level(HALL_SENSOR_VDD_PIN, 0);
-    gpio_set_level(HALL_SENSOR_GND_PIN, 0);
+
 
     // Configure RTC GPIO for wake-up
     rtc_gpio_init(MAIN_BUTTON_GPIO);
