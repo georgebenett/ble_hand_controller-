@@ -34,19 +34,13 @@ lv_obj_t * ui_Bar4;
 // SCREEN: ui_detailed_home
 void ui_detailed_home_screen_init(void);
 lv_obj_t * ui_detailed_home;
-lv_obj_t * ui_vesc_voltage;
-lv_obj_t * ui_vesc_motor_current;
-lv_obj_t * ui_battery_current;
-lv_obj_t * ui_vesc_consumption;
-lv_obj_t * ui_Label3;
+lv_obj_t * ui_Switch1;
 // CUSTOM VARIABLES
 
 
 // SCREEN: ui_splash_screen
 void ui_splash_screen_screen_init(void);
 lv_obj_t * ui_splash_screen;
-lv_obj_t * ui_Image2;
-lv_obj_t * ui_Image3;
 // CUSTOM VARIABLES
 
 // EVENTS

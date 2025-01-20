@@ -12,50 +12,11 @@ void ui_detailed_home_screen_init(void)
     lv_obj_set_style_bg_color(ui_detailed_home, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_detailed_home, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_vesc_voltage = lv_label_create(ui_detailed_home);
-    lv_obj_set_width(ui_vesc_voltage, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_vesc_voltage, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_vesc_voltage, -20);
-    lv_obj_set_y(ui_vesc_voltage, 20);
-    lv_obj_set_align(ui_vesc_voltage, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_vesc_voltage, "v");
-    lv_obj_set_style_text_font(ui_vesc_voltage, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Switch1 = lv_switch_create(ui_detailed_home);
+    lv_obj_set_width(ui_Switch1, 100);
+    lv_obj_set_height(ui_Switch1, 50);
+    lv_obj_set_align(ui_Switch1, LV_ALIGN_CENTER);
 
-    ui_vesc_motor_current = lv_label_create(ui_detailed_home);
-    lv_obj_set_width(ui_vesc_motor_current, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_vesc_motor_current, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_vesc_motor_current, -20);
-    lv_obj_set_y(ui_vesc_motor_current, 120);
-    lv_obj_set_align(ui_vesc_motor_current, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_vesc_motor_current, "a");
-    lv_obj_set_style_text_font(ui_vesc_motor_current, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_battery_current = lv_label_create(ui_detailed_home);
-    lv_obj_set_width(ui_battery_current, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_battery_current, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_battery_current, 90);
-    lv_obj_set_y(ui_battery_current, 20);
-    lv_obj_set_align(ui_battery_current, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_battery_current, "a");
-    lv_obj_set_style_text_font(ui_battery_current, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_vesc_consumption = lv_label_create(ui_detailed_home);
-    lv_obj_set_width(ui_vesc_consumption, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_vesc_consumption, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_vesc_consumption, 90);
-    lv_obj_set_y(ui_vesc_consumption, 120);
-    lv_obj_set_align(ui_vesc_consumption, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_vesc_consumption, "mAh");
-    lv_obj_set_style_text_font(ui_vesc_consumption, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Label3 = lv_label_create(ui_detailed_home);
-    lv_obj_set_width(ui_Label3, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label3, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label3, 70);
-    lv_obj_set_y(ui_Label3, -57);
-    lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label3, "km/h");
-    lv_obj_set_style_text_font(ui_Label3, &ui_font_bebas25, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
 }

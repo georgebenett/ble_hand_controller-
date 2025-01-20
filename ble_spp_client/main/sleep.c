@@ -11,6 +11,7 @@
 #include "esp_task_wdt.h"
 #include "hw_config.h"
 #include "ble_spp_client.h"
+#include "viber.h"
 
 
 #define TAG "SLEEP"
@@ -28,6 +29,7 @@ static void set_bar_value(void * obj, int32_t v)
 
     // If we reach 100%, trigger sleep immediately
     if (v >= 100) {
+        viber_play_pattern(VIBER_PATTERN_DOUBLE_SHORT);
         vTaskDelay(pdMS_TO_TICKS(250));
         enter_deep_sleep();
     }
@@ -144,7 +146,6 @@ void enter_deep_sleep(void) {
     // Power down Hall sensor
     gpio_set_level(HALL_SENSOR_VDD_PIN, 0);
 
-
     // Configure RTC GPIO for wake-up
     rtc_gpio_init(MAIN_BUTTON_GPIO);
     rtc_gpio_set_direction(MAIN_BUTTON_GPIO, RTC_GPIO_MODE_INPUT_ONLY);
@@ -159,11 +160,11 @@ void enter_deep_sleep(void) {
 
     // Add debounce delay after release
     vTaskDelay(pdMS_TO_TICKS(100));
+
     // Enable wake-up on low level (button press)
     ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(MAIN_BUTTON_GPIO, 0));
 
     // Enter deep sleep
     ESP_LOGI(TAG, "Entering deep sleep");
-
     esp_deep_sleep_start();
 }

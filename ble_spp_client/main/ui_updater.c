@@ -65,41 +65,6 @@ void ui_update_speed(int32_t value) {
     }
 }
 
-void ui_update_battery_voltage(float voltage) {
-    if (ui_vesc_voltage == NULL) return;
-
-    // Only update if detailed screen is active
-    if (get_current_screen() == ui_detailed_home) {
-        lv_label_set_text_fmt(ui_vesc_voltage, "%.1fv", voltage);
-    }
-}
-
-void ui_update_motor_current(float current) {
-    if (ui_vesc_motor_current == NULL) return;
-
-    // Only update if detailed screen is active
-    if (get_current_screen() == ui_detailed_home) {
-        lv_label_set_text_fmt(ui_vesc_motor_current, "%.1fa", current);
-    }
-}
-
-void ui_update_battery_current(float current) {
-    if (ui_battery_current == NULL) return;
-
-    // Only update if detailed screen is active
-    if (get_current_screen() == ui_detailed_home) {
-        lv_label_set_text_fmt(ui_battery_current, "%.1fa", current);
-    }
-}
-
-void ui_update_consumption(float consumption) {
-    if (ui_vesc_consumption == NULL) return;
-
-    // Only update if detailed screen is active
-    if (get_current_screen() == ui_detailed_home) {
-        lv_label_set_text_fmt(ui_vesc_consumption, "%.1fwh", consumption);
-    }
-}
 
 int get_connection_quality(void) {
     return connection_quality;

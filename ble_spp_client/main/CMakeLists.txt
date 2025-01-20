@@ -13,6 +13,8 @@ idf_component_register(
         "vesc_config.c"
         "ui_updater.c"
         "lcd.c"
+        "viber.c"
+        "hw_config.c"
         ${UI_SOURCES}
     INCLUDE_DIRS
         "."
